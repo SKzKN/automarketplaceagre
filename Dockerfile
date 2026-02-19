@@ -1,19 +1,10 @@
-# Stage 1: Build Frontend
-FROM node:20-slim AS frontend-builder
+# Stage 1: Prepare Frontend (Static HTML)
+FROM python:3.11-slim AS frontend-prep
 
-WORKDIR /app/frontend
+WORKDIR /app
 
-# Copy frontend package files
-COPY frontend/package.json frontend/package-lock.json* ./
-
-# Install dependencies
-RUN npm ci --legacy-peer-deps || npm install --legacy-peer-deps
-
-# Copy frontend source
-COPY frontend/ .
-
-# Build the frontend (static export)
-RUN npm run build
+# Copy static frontend files from "Front end right"
+COPY "Front end right/" /app/static/frontend/
 
 # Stage 2: Base Python Image with Dependencies
 FROM python:3.11-slim AS base
@@ -40,8 +31,8 @@ CMD ["rm", "requirements.txt"]
 # App folder is mounted via docker-compose for hot reload
 FROM base AS api
 
-# Copy frontend build output OUTSIDE of /app/app to avoid volume mount override
-COPY --from=frontend-builder /app/frontend/out /app/static/frontend
+# Copy static frontend files OUTSIDE of /app/app to avoid volume mount override
+COPY --from=frontend-prep /app/static/frontend /app/static/frontend
 
 EXPOSE 8000
 

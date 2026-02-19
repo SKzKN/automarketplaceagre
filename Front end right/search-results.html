@@ -985,10 +985,10 @@
                 // Show loading spinner immediately
                 showLoading();
                 
-                // Build filter object from URL params
+                // Build filter object from URL params (using new backend parameter names)
                 const filters = {};
-                if (urlParams.get('make')) filters.make = urlParams.get('make');
-                if (urlParams.get('model')) filters.model = urlParams.get('model');
+                if (urlParams.get('make')) filters.make_id = urlParams.get('make');
+                if (urlParams.get('model')) filters.model_id = urlParams.get('model');
                 if (urlParams.get('min_year')) filters.min_year = parseInt(urlParams.get('min_year'));
                 if (urlParams.get('max_year')) filters.max_year = parseInt(urlParams.get('max_year'));
                 if (urlParams.get('min_price')) filters.min_price = parseInt(urlParams.get('min_price'));
@@ -1018,38 +1018,38 @@
         // Prefetch ALL filter data at once
         async function prefetchFilterData() {
             try {
-                // Fetch all makes
+                // Fetch all makes (returns List[MakeDTO] with id, name, is_top)
                 const makesData = await getMakes();
-                if (makesData.makes) {
-                    filterCache.makes = makesData.makes;
+                if (makesData && Array.isArray(makesData)) {
+                    filterCache.makes = makesData;
                     
-                    // Fetch models for ALL makes in parallel
-                    const modelPromises = makesData.makes.map(async (make) => {
+                    // Fetch models for ALL makes in parallel (using make.id)
+                    const modelPromises = makesData.map(async (make) => {
                         try {
-                            const modelsData = await getModels(make);
-                            return { make, models: modelsData.models || [] };
+                            const modelsData = await getModels(make.id);
+                            return { makeId: make.id, models: modelsData || [] };
                         } catch (error) {
-                            console.error(`Error loading models for ${make}:`, error);
-                            return { make, models: [] };
+                            console.error(`Error loading models for ${make.name}:`, error);
+                            return { makeId: make.id, models: [] };
                         }
                     });
                     
                     const allModels = await Promise.all(modelPromises);
-                    allModels.forEach(({ make, models }) => {
-                        filterCache.modelsByMake[make] = models;
+                    allModels.forEach(({ makeId, models }) => {
+                        filterCache.modelsByMake[makeId] = models;
                     });
                 }
                 
-                // Fetch fuel types
+                // Fetch fuel types (api.js already extracts array from response)
                 const fuelData = await getFuelTypes();
-                if (fuelData.fuel_types) {
-                    filterCache.fuelTypes = fuelData.fuel_types;
+                if (fuelData) {
+                    filterCache.fuelTypes = Array.isArray(fuelData) ? fuelData : [];
                 }
                 
-                // Fetch body types
+                // Fetch body types (api.js already extracts array from response)
                 const bodyData = await getBodyTypes();
-                if (bodyData.body_types) {
-                    filterCache.bodyTypes = bodyData.body_types;
+                if (bodyData) {
+                    filterCache.bodyTypes = Array.isArray(bodyData) ? bodyData : [];
                 }
                 
                 console.log('Filter data prefetched:', filterCache);
@@ -1061,21 +1061,17 @@
         // Populate filter dropdowns from cached data
         async function populateFilterOptions() {
             try {
-                // Populate makes from cache
+                // Populate makes from cache (MakeDTO: {id, name, is_top})
                 const makeSelect = document.querySelector('select[name="make"]');
                 if (makeSelect && filterCache.makes.length) {
                     const currentMake = urlParams.get('make') || '';
                     makeSelect.innerHTML = '<option value="">Kõik margid</option>';
                     filterCache.makes.forEach(make => {
-                        if (!make) return; // Skip null/empty values
+                        if (!make || !make.id) return; // Skip invalid values
                         const option = document.createElement('option');
-                        option.value = make; // Use exact value from API
-                        // Display text: capitalize first letter of each word
-                        const displayText = make.split(' ').map(word => 
-                            word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-                        ).join(' ');
-                        option.textContent = displayText;
-                        if (make === currentMake) option.selected = true;
+                        option.value = make.id; // Use make ID for value
+                        option.textContent = make.name; // Display make name
+                        if (make.id === currentMake) option.selected = true;
                         makeSelect.appendChild(option);
                     });
                 }
@@ -1117,21 +1113,18 @@
                 }
                 
                 // Function to update model dropdown based on selected make
-                function updateModelDropdown(make, selectedModel = '') {
+                function updateModelDropdown(makeId, selectedModel = '') {
                     const modelSelect = document.querySelector('select[name="model"]');
                     if (modelSelect) {
                         modelSelect.innerHTML = '<option value="">Kõik mudelid</option>';
-                        if (make && filterCache.modelsByMake[make]) {
-                            filterCache.modelsByMake[make].forEach(model => {
-                                if (!model) return; // Skip null/empty values
+                        if (makeId && filterCache.modelsByMake[makeId]) {
+                            // ModelDTO: {id, name, make_id, series_id}
+                            filterCache.modelsByMake[makeId].forEach(model => {
+                                if (!model || !model.id) return; // Skip invalid values
                                 const option = document.createElement('option');
-                                option.value = model; // Use exact value from API
-                                // Display text: capitalize first letter of each word for better display
-                                const displayText = model.split(' ').map(word => 
-                                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-                                ).join(' ');
-                                option.textContent = displayText;
-                                if (model === selectedModel) option.selected = true;
+                                option.value = model.id; // Use model ID for value
+                                option.textContent = model.name; // Display model name
+                                if (model.id === selectedModel) option.selected = true;
                                 modelSelect.appendChild(option);
                             });
                         }

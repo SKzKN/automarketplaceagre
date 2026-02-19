@@ -79,21 +79,31 @@ def _setup_frontend_static_files(app: FastAPI) -> None:
     if not os.path.exists(frontend_build_path):
         return
     
-    # Mount Next.js static assets
-    next_static = os.path.join(frontend_build_path, "_next")
-    if os.path.exists(next_static):
-        app.mount("/_next", StaticFiles(directory=next_static), name="next_static")
+    # Mount static assets folder
+    assets_path = os.path.join(frontend_build_path, "assets")
+    if os.path.exists(assets_path):
+        app.mount("/assets", StaticFiles(directory=assets_path), name="assets")
     
-    # Serve index.html for all non-API routes (SPA routing)
+    # Serve HTML pages for specific routes
+    @app.get("/search-results")
+    @app.get("/search-results.html")
+    async def serve_search_results():
+        search_results_path = os.path.join(frontend_build_path, "search-results.html")
+        if os.path.exists(search_results_path):
+            return FileResponse(search_results_path, media_type="text/html")
+        return {"error": "Search results page not found"}
+    
+    # Serve index.html for root and other non-API routes
     @app.get("/{full_path:path}")
     async def serve_frontend(full_path: str):
-        # Don't intercept API routes or static assets
-        if full_path.startswith("api") or full_path.startswith("_next") or full_path == "health":
+        # Don't intercept API routes, health check, or static assets
+        if full_path.startswith("api") or full_path.startswith("assets") or full_path == "health":
             return None
         
+        # Serve index.html for root
         index_path = os.path.join(frontend_build_path, "index.html")
         if os.path.exists(index_path):
-            return FileResponse(index_path)
+            return FileResponse(index_path, media_type="text/html")
         return {"error": "Frontend not built"}
 
 

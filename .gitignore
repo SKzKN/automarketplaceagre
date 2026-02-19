@@ -16,6 +16,7 @@ node_modules/
 out/
 dist/
 *.log
+frontend-old/
 
 # Environment files
 .env
