@@ -1,0 +1,60 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+ENV/
+env/
+.eggs/
+*.egg-info/
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Logs
+logs/
+*.log
+
+# Local development files
+.env
+.env.local
+*.local
+
+# Build artifacts
+dist/
+build/
+
+# Node.js (will be built in container)
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# Backend pycache
+backend/__pycache__/
+backend/**/__pycache__/
+
+# Documentation
+*.md
+!README.md
+
+# Old backend deployment files (now at root)
+backend/Dockerfile
+backend/compose.yaml
+backend/.dockerignore
