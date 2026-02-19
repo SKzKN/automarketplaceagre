@@ -1,0 +1,95 @@
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: car_marketplace_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      env_file: .env.api
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api
+    container_name: car_marketplace_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    env_file: .env.api
+    volumes:
+      # Mount app folder for hot reload (uvicorn --reload)
+      - ./backend/app:/app/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  scrapers:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: scrapers
+    container_name: car_marketplace_scrapers
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    env_file: .env.scrapers
+    profiles:
+      - scrapers  # Only runs when explicitly requested
+
+  cron:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: cron
+    container_name: car_marketplace_cron
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    env_file: .env.scrapers
+
+  # Ngrok Tunnel (expose API publicly)
+  # Get your authtoken from https://dashboard.ngrok.com/get-started/your-authtoken
+  # Set NGROK_AUTHTOKEN in your environment or .env file
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: car_marketplace_ngrok
+    restart: unless-stopped
+    command:
+      - "http"
+      - "http://api:8000"
+      - "--log=stdout"
+    ports:
+      - "4040:4040"  # Ngrok web interface for inspecting traffic
+    env_file: .env.ngrok
+    depends_on:
+      api:
+        condition: service_healthy
+    profiles:
+      - tunnel  # Only runs when explicitly requested
+  mongo-express:
+    image: mongo-express
+    env_file: .env.mongo-express
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+volumes:    
+  mongodb_data:

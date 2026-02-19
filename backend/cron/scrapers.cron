@@ -1,0 +1,4 @@
+# Run scrapers every 12 hours
+0 */12 * * * cd /app && python -m scrapers.main >> /var/log/cron.log 2>&1
+
+# Empty line required at end of crontab
