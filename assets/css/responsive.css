@@ -1,0 +1,576 @@
+@media(max-width: 1400px){
+  .car-book h3 {
+    font-size: 18px;
+  }
+  .hero-text h1 span {
+     display: inline-block;
+  }
+  .car-book img.car-back {
+    width: 54%;
+  }
+  .save-upto img {
+    width: 14px;
+  }
+  .tabtwo.nav-pills .nav-link {
+    margin-right: 10px;
+    width: 100px;
+  }
+  .tabtwo.nav.flex-column.nav-pills {
+    padding-left: 56px;
+   }
+   .img-slider img {
+    height: 820px;
+    width: 100%;
+    object-fit: cover;
+  }
+   .tabtwo form span {
+    font-size: 14px;
+  }
+   .hero-text h1 {
+     width: 90%;
+  }
+  .bottom-bar ul li {
+    padding-right: 13px;
+    padding-left: 13px;
+  }
+  .hero-section-text {
+    width: 1120px; 
+    padding-top: 220px;
+  }
+  h1 { 
+    font-size: 64px;
+    line-height: 74px; 
+  }
+  .login a.register {
+     padding: 11px 20px;
+  } 
+  .save-upto h6 {
+    font-size: 12px;
+  }
+  .hero-text h5 {
+    font-size: 28px;
+    padding-bottom: 40px;
+  }
+  .save-upto {
+     padding: 6px;
+    gap: 10px;
+     padding-right: 20px;
+    padding-left: 10px;
+   }
+   h2 {
+    font-size: 50px;
+  }
+  .stap {
+    padding: 40px;
+  }
+  .stap img {
+    width: 200px;
+  }
+  .heading.two p {
+    width: 100%;
+  }
+  .service h3 {
+    font-size: 20px;
+  }
+  .service p { 
+    width: 100%; 
+    font-size: 15px;
+    line-height: 25px;
+  }
+  .list-style li {
+    padding-bottom: 12px;
+    font-size: 16px;
+  }
+  .nav-pills .nav-link {
+    width: 210px;
+    padding-left: 10px;
+  }
+  .car-info img {
+    width: 53%;
+  }
+  .car-info ul li span {
+    left: 47%;
+  }
+  p {
+    font-size: 16px;
+    line-height: 26px;
+  }
+  .locations-address {
+    width: 19%;
+  }
+  .blog-style h4 {
+    font-size: 24px;
+    line-height: 34px;
+  }
+  .review {
+    width: 90%;
+  }
+  .locations-section > img {
+    width: 45%;
+  }
+  .swiper-pagination {
+    left: 84%;
+  }
+  #progress {
+    height: 55px;
+    width: 55px;
+  }
+  span#progress-value i {
+    font-size: 18px;
+  }
+  .book-car-hire { 
+    padding: 90px 52px; 
+    width: 500px;
+    height: 500px; 
+    padding-bottom: 0;
+  }
+  .book-car-hire-section {
+    background-position: center;
+  }
+  .book-car-hire img {
+    width: 40%;
+  }
+  .book-car-hire h2 {
+    padding-top: 20px; 
+    width: 96%; 
+    font-size: 44px;
+  }
+}
+@media(max-width: 1200px){
+  .gap {
+    padding: 100px 0;
+  }
+  .no-top{
+      padding-top: 0;
+  }
+  .no-bottom{
+      padding-bottom: 0;
+  }
+  .img-slider img {
+    height: 680px;
+  }
+  .bottom-bar {
+     padding-top: 15px;
+    padding-bottom: 10px;
+  }
+  .hero-section-text {
+    width: 960px;
+    padding-top: 120px;
+  }
+  .bottom-bar nav {
+    display: none;
+  }
+  .car-book img.car-back {
+    width: 60%;
+  } 
+  .car-book ul {
+    gap: 14px;
+   }
+   .main-top-bar {
+    display: none;
+   }
+   .tabtwo.nav-pills .nav-link {
+    width: 80px;
+    height: 80px;
+    padding-top: 0;
+  }
+  .hero-text h1 {
+    width: 100%;
+  }
+  .tabtwo.nav.flex-column.nav-pills {
+    padding-left: 52px;
+  }
+  .tabtwo .nav-link i {
+    font-size: 39px;
+     width: 48px;
+    height: 43px;
+  }
+   h2 {
+    font-size: 46px;
+  }
+  .stap h3 {
+    font-size: 24px; 
+    padding-bottom: 12px;
+   }
+   .nav-pills .nav-link {
+    width: 176px;
+   }
+   .car-data {
+    width: 29%;
+  }
+  .car-bok {
+    gap: 20px; 
+  }
+  .car-bok:before {
+    width: 80px;
+    height: 80px;
+  }
+  .car-bok img {
+    width: 80px;
+  }
+  .car-info img {
+    width: 46%;
+  }
+  .locations-address a {
+    right: -55px;
+    bottom: 100px;
+    padding: 10px 20px;
+    font-size: 18px;
+    width: 178px !important;
+   }
+   .review {
+    width: 100%;
+  }
+  .review-clint p {
+    font-size: 20px;
+    line-height: 36px;
+  }
+  .footer-top > a {
+    font-size: 34px;
+  }
+  .swiper-pagination {
+    left: 80.5%;
+  }
+}
+@media(max-width: 993px){
+  .gap {
+    padding: 80px 0;
+  }
+  .no-top{
+      padding-top: 0;
+  }
+  .no-bottom{
+      padding-bottom: 0;
+  }
+  .hero-section-text {
+    width: auto;
+    position: relative;
+  }
+  .datatime { 
+     padding-bottom: 0px; 
+    }
+  .date-from {
+    margin-bottom: 20px;
+  }
+  #home {
+    padding-bottom: 80px;
+   }
+   .login a.register {
+     margin: 0;
+  }
+   .login > a {
+     display: none;
+  }
+  .img-slider {
+    display: none;
+  }
+  .hero-text ul.theme-list {
+    margin-bottom: 40px;
+  }
+  .locations-section > img {
+    width: 100%;
+  }
+  .tabtwo.nav-pills .nav-link {
+    padding: 0;
+  }
+  .tabtwo .nav-link i {
+    padding-left: 16px;
+  }
+  .blog-style h4 {
+    font-size: 20px;
+    line-height: 30px;
+    padding-top: 12px;
+  }
+  .blog-style {
+    margin-bottom: 40px;
+  }
+  .heading h2 span {
+    display: inline-block;
+  }
+  .locations-address {
+    width: 32%;
+  }
+  .locations {
+    justify-content: left;
+    gap: 10px;
+  }
+  .count-style h3 {
+    font-size: 40px; 
+  }
+  .count-style span {
+     font-size: 12px;
+  }
+  .count-style {
+    bottom: 11px;
+    left: 20px;
+    gap: 40px;
+    padding: 20px 30px;
+  }
+    .count-style:before {
+       height: 65%;
+   }
+   h2 {
+    font-size: 40px;
+  }
+  .nav-pills .nav-link img {
+    display: none;
+  }
+  .nav-pills .nav-link {
+    width: 120px;
+    padding-left: 0;
+    font-size: 14px;
+    display: block;
+  }
+  .car-hire {
+    flex-wrap: wrap; 
+  }
+  .car-info,.car-data {
+    width: 100%;
+  }
+  .locations-section .map {
+    position: relative;
+    width: 100%;
+    top: 0;
+    height: 350px;
+    z-index: 5;
+    right: 0;
+    margin-top: 30px;
+  } 
+  .locations-section {
+    padding-bottom: 0 !important;
+  }
+  .locations-section > img {
+    border-radius: 0;
+  }
+  .book-car-hire {
+    padding: 55px 52px;
+    width: 400px;
+    height: 400px;
+    padding-bottom: 0;
+  }
+  .book-car-hire h2 {
+    padding-bottom: 14px;
+    width: 100%;
+    font-size: 30px;
+    padding-top: 6px;
+  }
+  .footer-top {
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .subscribe-letter {
+    width: 100%;
+  }
+  .information-link {
+    padding-top: 30px;
+  }
+}
+@media(max-width: 768px){
+  .heading { 
+    width: 100%; 
+  }
+  h1 {
+    font-size: 54px;
+    line-height: 64px;
+  }
+  .footer-information {
+    padding-top: 60px;
+  }
+  footer {
+     padding-top: 60px;
+  }
+  .footer-bottom {
+     margin-top: 60px;
+   }
+  .footer-bottom {
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+    gap: 20px;
+  }
+  .car-hire {
+    gap: 40px;
+  }
+  .car-info img {
+    display: none;
+  } 
+  .swiper-pagination {
+    left: auto;
+    position: relative;
+    width: 100%;
+    margin-top: 40px;
+  }
+  .swiper-button {
+    position: relative;
+    bottom: -33px;
+    width: 100%;
+    right: 0;
+  }
+  .review-clint .man {
+     padding-bottom: 20px;
+  }
+}
+@media(max-width: 576px){
+  .gap {
+    padding: 60px 0;
+  }
+  .no-top{
+      padding-top: 0;
+  }
+  .no-bottom{
+      padding-bottom: 0;
+  }
+  .book-car-hire {
+    padding: 55px 52px;
+    width: 340px;
+    height: 340px;
+    padding-bottom: 0;
+  }
+  .book-car-hire h2 {
+     font-size: 24px;
+     padding-top: 0;
+  }
+  .book-car-hire p {
+     font-size: 14px;
+    line-height: 24px;
+  }
+  .car-book img.car-back {
+    width: 29%;
+  }
+  figure {
+    margin-bottom: 0;
+  }
+  .car-book h3 {
+    font-size: 24px;
+  }
+  .stap:hover:before {
+     transform: scale(1.05);
+   }
+   .locations-address {
+    width: 48%;
+  }
+}
+@media(max-width: 500px){
+  .footer-top > a {
+    font-size: 26px;
+  }
+  .tabtwo.nav.flex-column.nav-pills {
+    padding-left: 27px;
+  }
+  .footer-top ul {
+    gap: 30px;
+  }
+  h2 {
+    font-size: 38px;
+  }
+  .car-info ul li {
+     font-size: 12px;
+   }
+   .car-hire {
+    padding: 20px;
+   }
+   .car-info ul {
+     padding: 20px;
+   }
+   .car-info ul li:not(:last-child) {
+    border-bottom: 1px dashed #1e1e1e;
+    padding-bottom: 13px;
+    margin-bottom: 13px;
+  }
+}
+@media(max-width: 480px){
+  h1 {
+    font-size: 44px;
+    line-height: 54px;
+  }
+  .hero-text h5 {
+    font-size: 22px;
+    padding-bottom: 25px;
+  }
+  ul.theme-list li {
+     font-size: 16px;
+  }
+}
+@media(max-width: 450px){
+  .car-book h3 {
+    font-size: 20px;
+  }
+  .tabtwo.nav-pills .nav-link {
+    width: 70px;
+    height: 70px;
+    padding-top: 0;
+    margin-right: 2px;
+  }
+  .rental-type input[type='radio']:after {
+    width: 14px;
+    height: 14px;
+    top: 4px;
+    left: -17px;
+     }
+  ul.rental-type {
+     gap: 14px;
+     }
+     ul.rental-type li {
+    padding-left: 15px;
+    font-size: 12px;
+}
+  .tabtwo .nav-link i {
+    padding-left: 12px;
+    font-size: 32px;
+    height: 32px;
+    }
+  .tabtwo form {
+     padding-top: 60px;
+    margin-top: -78px;
+     }
+}
+@media(max-width: 410px){
+  h2 {
+    font-size: 32px;
+  }
+  .logo a img {
+    width: 120px;
+}
+}
+
+@media only screen and (max-width: 10020px) and (min-width: 1700px){
+  .img-slider img {
+    object-fit: cover;
+    animation: imgscale 8s infinite;
+    width: 100%;
+    height: 850px;
+  }     
+} 
+@media only screen and (max-width: 10020px) and (min-width: 1200px){
+  header.slideUp { 
+    z-index: 1111111;
+  }
+  .slideDown .main-top-bar,
+  .slideUp .main-top-bar {
+    display: none !important;
+  }
+  .header-top-bar {
+    background-color: #00000073; 
+  }
+
+.slideUp {
+  transform: translateY(-140px);
+  -webkit-transform: translateY(-140px);
+  -moz-transform: translateY(-140px);
+  -o-transform: translateY(-140px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+.slideDown {
+    transform: translateY(0);
+    -webkit-transform: translateY(0);
+    -moz-transform: translateY(0);
+    -o-transform: translateY(0);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%; 
+  }
+}

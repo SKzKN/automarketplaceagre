@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Otsingu tulemused - AutoOtsing</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/fontawesome.min.css">
+    <link rel="stylesheet" href="assets/font/flaticon_mycollection.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        /* Header */
+        .search-header {
+            background: linear-gradient(135deg, #1a5276 0%, #2980b9 100%);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .search-header .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .search-header .logo i {
+            margin-right: 8px;
+        }
+        
+        .header-nav a {
+            color: #fff;
+            margin-left: 25px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .header-nav a:hover {
+            color: #f1c40f;
+        }
+        
+        /* Main Layout */
+        .search-page {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+        
+        /* Left Sidebar - Filters */
+        .filters-sidebar {
+            width: 280px;
+            background: #fff;
+            padding: 20px;
+            border-right: 1px solid #e0e0e0;
+            overflow-y: auto;
+            max-height: calc(100vh - 60px);
+            position: sticky;
+            top: 60px;
+        }
+        
+        .filters-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #2980b9;
+        }
+        
+        .filters-header h3 {
+            font-size: 18px;
+            color: #333;
+            display: flex;
+            align-items: center;
+        }
+        
+        .filters-header h3 i {
+            margin-right: 8px;
+            color: #2980b9;
+        }
+        
+        .filter-group {
+            margin-bottom: 20px;
+        }
+        
+        .filter-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+        }
+        
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            background: #fff;
+        }
+        
+        .filter-group select:focus,
+        .filter-group input:focus {
+            border-color: #2980b9;
+            outline: none;
+        }
+        
+        .filter-row {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .filter-row .filter-col {
+            flex: 1;
+        }
+        
+        .filter-checkbox {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .filter-checkbox input {
+            width: auto;
+            margin-right: 8px;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .filter-buttons button {
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+        }
+        
+        .filter-buttons button.active {
+            background: #2980b9;
+            color: #fff;
+            border-color: #2980b9;
+        }
+        
+        .btn-search-filters {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .btn-search-filters:hover {
+            background: linear-gradient(135deg, #219a52 0%, #27ae60 100%);
+        }
+        
+        /* Main Content - Results */
+        .results-main {
+            flex: 1;
+            padding: 20px 25px;
+            overflow-y: auto;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .results-title {
+            display: flex;
+            align-items: center;
+        }
+        
+        .results-title h2 {
+            font-size: 22px;
+            color: #333;
+        }
+        
+        .results-count {
+            background: #2980b9;
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .results-sort {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .results-sort label {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .results-sort select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        
+        /* Source Tabs */
+        .source-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .source-tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .source-tab.active {
+            background: #2980b9;
+            color: #fff;
+            border-color: #2980b9;
+        }
+        
+        .source-tab .count {
+            background: rgba(0,0,0,0.1);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+        
+        .source-tab.active .count {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        /* Car Card */
+        .car-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .car-card:hover {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .car-card-image {
+            width: 300px;
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .car-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .hot-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #e74c3c;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .car-card-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .car-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .car-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2980b9;
+            margin-bottom: 5px;
+        }
+        
+        .car-title:hover {
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        
+        .car-source {
+            font-size: 11px;
+            color: #fff;
+            background: #3498db;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+        
+        .car-price-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .car-price {
+            font-size: 22px;
+            font-weight: bold;
+            color: #27ae60;
+        }
+        
+        .deal-badge {
+            background: #d5f4e6;
+            color: #27ae60;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .deal-badge.great {
+            background: #c8f7dc;
+        }
+        
+        .car-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 10px 0;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .car-details span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .car-details i {
+            color: #999;
+        }
+        
+        .car-description {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+            margin: 10px 0;
+        }
+        
+        .car-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        
+        .dealer-info {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .dealer-info i {
+            margin-right: 5px;
+            color: #999;
+        }
+        
+        .source-logo {
+            height: 30px;
+            max-width: 100px;
+            object-fit: contain;
+            vertical-align: middle;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+        }
+        
+        .share-btn {
+            background: none;
+            border: none;
+            color: #2980b9;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        
+        .share-btn:hover {
+            text-decoration: underline;
+        }
+        
+        /* Right Sidebar - Saved Searches */
+        .saved-sidebar {
+            width: 300px;
+            background: #fff;
+            padding: 20px;
+            border-left: 1px solid #e0e0e0;
+            overflow-y: auto;
+            max-height: calc(100vh - 60px);
+            position: sticky;
+            top: 60px;
+        }
+        
+        .saved-section {
+            margin-bottom: 25px;
+        }
+        
+        .saved-section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f1c40f;
+        }
+        
+        .saved-section-header i {
+            color: #f1c40f;
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        
+        .saved-section-header h4 {
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .add-search-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        
+        .add-search-btn:hover {
+            background: linear-gradient(135deg, #1a5276 0%, #2980b9 100%);
+        }
+        
+        .saved-search-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        
+        .saved-search-item:hover {
+            background: #e8f4fc;
+        }
+        
+        .saved-search-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .saved-search-details {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .saved-search-count {
+            font-size: 11px;
+            color: #27ae60;
+            margin-top: 5px;
+        }
+        
+        /* Alert Subscription */
+        .alert-subscription {
+            background: linear-gradient(135deg, #e8f6f3 0%, #d5f5e3 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-subscription h5 {
+            font-size: 14px;
+            color: #27ae60;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .alert-subscription h5 i {
+            margin-right: 8px;
+        }
+        
+        .alert-subscription input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #27ae60;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+        
+        .alert-subscription button {
+            width: 100%;
+            padding: 10px;
+            background: #27ae60;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        /* Loading Spinner */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2980b9;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .loading-subtext {
+            font-size: 13px;
+            color: #999;
+        }
+        
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .sidebar-link i {
+            margin-right: 12px;
+            color: #2980b9;
+            width: 20px;
+        }
+        
+        .sidebar-link:hover {
+            color: #2980b9;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .saved-sidebar {
+                width: 250px;
+            }
+            .car-card-image {
+                width: 250px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .saved-sidebar {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .search-page {
+                flex-direction: column;
+            }
+            .filters-sidebar {
+                width: 100%;
+                max-height: none;
+                position: relative;
+                top: 0;
+            }
+            .car-card {
+                flex-direction: column;
+            }
+            .car-card-image {
+                width: 100%;
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="search-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="index.html" class="logo">
+                    <i class="flaticon-car"></i> AutoOtsing
+                </a>
+                <nav class="header-nav">
+                    <a href="index.html">Otsi autosid</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Search Page -->
+    <div class="search-page">
+        
+        <!-- Left Sidebar - Filters -->
+        <aside class="filters-sidebar">
+            <div class="filters-header">
+                <h3><i class="fas fa-filter"></i> Täpsusta otsingut</h3>
+            </div>
+            
+            <form>
+                <div class="filter-group">
+                    <label>Mark</label>
+                    <select name="make">
+                        <option value="">Kõik margid</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Mudel</label>
+                    <select name="model">
+                        <option value="">Kõik mudelid</option>
+                    </select>
+                </div>
+                
+                <hr style="margin: 20px 0; border-color: #eee;">
+                
+                <div class="filters-header" style="border-bottom: 1px solid #ddd; margin-bottom: 15px;">
+                    <h3 style="font-size: 14px;"><i class="fas fa-sliders-h"></i> Filtrid</h3>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Hind</label>
+                    <div class="filter-row">
+                        <div class="filter-col">
+                            <input type="number" placeholder="Min" name="min_price">
+                        </div>
+                        <div class="filter-col">
+                            <input type="number" placeholder="Max" name="max_price">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Aasta</label>
+                    <div class="filter-row">
+                        <div class="filter-col">
+                            <input type="number" placeholder="Min" name="min_year" value="1900">
+                        </div>
+                        <div class="filter-col">
+                            <input type="number" placeholder="Max" name="max_year" value="2026">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Kütus</label>
+                    <select name="fuel">
+                        <option value="">Kõik</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Kere tüüp</label>
+                    <select name="body_type">
+                        <option value="">Kõik</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Käigukast</label>
+                    <select name="transmission">
+                        <option value="">Kõik</option>
+                        <option value="Manual">Manuaal</option>
+                        <option value="Automatic">Automaat</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Vedu tüüp</label>
+                    <select name="drive_type">
+                        <option value="">Kõik</option>
+                        <option value="Esivedu">Esivedu</option>
+                        <option value="Tagavedu">Tagavedu</option>
+                        <option value="Nelikvedu">Nelikvedu</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Läbisõit</label>
+                    <div class="filter-row">
+                        <div class="filter-col">
+                            <input type="number" placeholder="Min km" name="min_mileage">
+                        </div>
+                        <div class="filter-col">
+                            <input type="number" placeholder="Max km" name="max_mileage">
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-search-filters">
+                    <i class="fas fa-search"></i> Otsi
+                </button>
+            </form>
+        </aside>
+        
+        <!-- Main Content - Results -->
+        <main class="results-main">
+            <div class="results-header">
+                <div class="results-title">
+                    <h2>Otsingu tulemused</h2>
+                    <span class="results-count">0</span>
+                </div>
+                <div class="results-sort">
+                    <label>Sorteeri:</label>
+                    <select>
+                        <option value="source">Allikas</option>
+                        <option value="price_low">Hind (madalaim)</option>
+                        <option value="price_high">Hind (kõrgeim)</option>
+                        <option value="year_new">Aasta (uuem)</option>
+                        <option value="mileage_low">Läbisõit (väiksem)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Source Tabs -->
+            <div class="source-tabs">
+                <button class="source-tab active">Kõik <span class="count">0</span></button>
+                <button class="source-tab">Auto24 <span class="count">0</span></button>
+                <button class="source-tab">Mobile.de <span class="count">0</span></button>
+                <button class="source-tab">Autoscout24 <span class="count">0</span></button>
+            </div>
+            
+            <!-- Car Cards will be dynamically loaded here -->
+            
+        </main>
+        
+        <!-- Right Sidebar - Saved Searches -->
+        <aside class="saved-sidebar">
+            <div class="saved-section">
+                <div class="saved-section-header">
+                    <i class="fas fa-star"></i>
+                    <h4>Salvestatud otsingud</h4>
+                </div>
+                
+                <button class="add-search-btn">
+                    <i class="fas fa-plus"></i> Lisa praegune otsing
+                </button>
+                
+                <div class="alert-subscription">
+                    <h5><i class="fas fa-bell"></i> Saa teavitusi uutest kuulutustest</h5>
+                    <input type="email" placeholder="sinu@email.com">
+                    <button><i class="fas fa-bell"></i> Saa teavitusi</button>
+                </div>
+            </div>
+            
+            <div class="saved-section">
+                <a href="#" class="sidebar-link">
+                    <i class="fas fa-question-circle"></i> Abi
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i class="fas fa-comment"></i> Tagasiside
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i class="fas fa-tools"></i> Rohkem tööriistu
+                </a>
+            </div>
+        </aside>
+        
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script type="module">
+        // Import API functions
+        import { getListings, getMakes, getModels, getFuelTypes, getBodyTypes } from './assets/js/api.js';
+        
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // Cache for all filter data (prefetched)
+        const filterCache = {
+            makes: [],
+            modelsByMake: {},
+            fuelTypes: [],
+            bodyTypes: []
+        };
+        
+        // Store current listings globally for sorting
+        let currentListings = [];
+        
+        // Get source logo based on source site
+        function getSourceLogo(sourceSite) {
+            if (!sourceSite) return null;
+            
+            const sourceLower = sourceSite.toLowerCase();
+            
+            if (sourceLower.includes('auto24')) {
+                return 'assets/img/auto24 logo.png';
+            } else if (sourceLower.includes('autodiiler') || sourceLower.includes('autodiler')) {
+                return 'assets/img/autodiiler logo.png';
+            } else if (sourceLower.includes('veego')) {
+                return 'assets/img/veego logo.png';
+            }
+            
+            return null;
+        }
+        
+        // Render car listings dynamically
+        function renderListings(listings) {
+            const main = document.querySelector('.results-main');
+            if (!main) return;
+            
+            // Keep the results header, remove everything else
+            const resultsHeader = main.querySelector('.results-header');
+            main.innerHTML = '';
+            if (resultsHeader) main.appendChild(resultsHeader);
+            
+            if (!Array.isArray(listings) || !listings.length) {
+                main.insertAdjacentHTML('beforeend', '<p style="padding: 20px; text-align: center; color: #666;">Ühtegi autot ei leitud.</p>');
+                const countSpan = document.querySelector('.results-count');
+                if (countSpan) countSpan.textContent = '0';
+                return;
+            }
+            
+            listings.forEach(listing => {
+                const card = document.createElement('div');
+                card.className = 'car-card';
+                card.innerHTML = `
+                    <div class="car-card-image">
+                        ${listing.image_url ? `<img src="${listing.image_url}" alt="${listing.title || listing.make + ' ' + listing.model}">` : '<div style="width: 100%; height: 100%; background: #e0e0e0; display: flex; align-items: center; justify-content: center; color: #999;">No Image</div>'}
+                    </div>
+                    <div class="car-card-content">
+                        <div>
+                            <div class="car-card-header">
+                                <h3 class="car-title">${listing.year || ''} ${listing.make || ''} ${listing.model || ''}</h3>
+                                <span class="car-source">${listing.source_site || 'N/A'}</span>
+                            </div>
+                            <div class="car-price-section">
+                                <span class="car-price">${listing.price ? '€' + listing.price.toLocaleString() : 'Hind kokkuleppel'}</span>
+                            </div>
+                            <div class="car-details">
+                                ${listing.year ? `<span><i class="fas fa-calendar"></i> ${listing.year}</span>` : ''}
+                                ${listing.mileage ? `<span><i class="fas fa-tachometer-alt"></i> ${listing.mileage.toLocaleString()} km</span>` : ''}
+                                ${listing.transmission ? `<span><i class="fas fa-cog"></i> ${listing.transmission}</span>` : ''}
+                                ${listing.body_type ? `<span><i class="fas fa-car"></i> ${listing.body_type}</span>` : ''}
+                                ${listing.drive_type ? `<span><i class="fas fa-road"></i> ${listing.drive_type}</span>` : ''}
+                                ${listing.fuel_type ? `<span><i class="fas fa-gas-pump"></i> ${listing.fuel_type}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="car-card-footer">
+                            ${getSourceLogo(listing.source_site) 
+                                ? `<span class="dealer-info"><img src="${getSourceLogo(listing.source_site)}" alt="${listing.source_site}" class="source-logo"></span>`
+                                : `<span class="dealer-info"><i class="fas fa-store"></i> ${listing.source_site || 'N/A'}</span>`
+                            }
+                            <a href="${listing.source_url || '#'}" target="_blank" class="share-btn"><i class="fas fa-arrow-right"></i> Vaata kuulutust</a>
+                        </div>
+                    </div>
+                `;
+                main.appendChild(card);
+            });
+            
+            // Update results count
+            const countSpan = document.querySelector('.results-count');
+            if (countSpan) countSpan.textContent = listings.length;
+        }
+        
+        // Sort listings based on sort option
+        function sortListings(sortBy) {
+            if (!currentListings || !currentListings.length) return;
+            
+            const sorted = [...currentListings];
+            
+            switch(sortBy) {
+                case 'price_low':
+                    sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
+                    break;
+                case 'price_high':
+                    sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
+                    break;
+                case 'year_new':
+                    sorted.sort((a, b) => (b.year || 0) - (a.year || 0));
+                    break;
+                case 'mileage_low':
+                    sorted.sort((a, b) => (a.mileage || 0) - (b.mileage || 0));
+                    break;
+                case 'source':
+                default:
+                    // Keep original order
+                    break;
+            }
+            
+            renderListings(sorted);
+        }
+        
+        // Show loading spinner
+        function showLoading() {
+            const main = document.querySelector('.results-main');
+            if (!main) return;
+            
+            const resultsHeader = main.querySelector('.results-header');
+            main.innerHTML = '';
+            if (resultsHeader) main.appendChild(resultsHeader);
+            
+            const loadingHTML = `
+                <div class="loading-container">
+                    <div class="spinner"></div>
+                    <div class="loading-text">Otsin autosid...</div>
+                    <div class="loading-subtext">Palun oota hetk</div>
+                </div>
+            `;
+            main.insertAdjacentHTML('beforeend', loadingHTML);
+        }
+        
+        // Fetch and display listings
+        async function fetchAndDisplayListings() {
+            try {
+                // Show loading spinner immediately
+                showLoading();
+                
+                // Build filter object from URL params
+                const filters = {};
+                if (urlParams.get('make')) filters.make = urlParams.get('make');
+                if (urlParams.get('model')) filters.model = urlParams.get('model');
+                if (urlParams.get('min_year')) filters.min_year = parseInt(urlParams.get('min_year'));
+                if (urlParams.get('max_year')) filters.max_year = parseInt(urlParams.get('max_year'));
+                if (urlParams.get('min_price')) filters.min_price = parseInt(urlParams.get('min_price'));
+                if (urlParams.get('max_price')) filters.max_price = parseInt(urlParams.get('max_price'));
+                if (urlParams.get('min_mileage')) filters.min_mileage = parseInt(urlParams.get('min_mileage'));
+                if (urlParams.get('max_mileage')) filters.max_mileage = parseInt(urlParams.get('max_mileage'));
+                if (urlParams.get('fuel')) filters.fuel_type = urlParams.get('fuel');
+                if (urlParams.get('body_type')) filters.body_type = urlParams.get('body_type');
+                if (urlParams.get('transmission')) filters.transmission = urlParams.get('transmission');
+                if (urlParams.get('drive_type')) filters.drive_type = urlParams.get('drive_type');
+                
+                const listings = await getListings(filters);
+                currentListings = listings;
+                renderListings(listings);
+            } catch (error) {
+                console.error('Error fetching listings:', error);
+                const main = document.querySelector('.results-main');
+                if (main) {
+                    const resultsHeader = main.querySelector('.results-header');
+                    main.innerHTML = '';
+                    if (resultsHeader) main.appendChild(resultsHeader);
+                    main.insertAdjacentHTML('beforeend', '<p style="padding: 20px; text-align: center; color: #e74c3c;">Viga andmete laadimisel. Palun proovige hiljem uuesti.</p>');
+                }
+            }
+        }
+        
+        // Prefetch ALL filter data at once
+        async function prefetchFilterData() {
+            try {
+                // Fetch all makes
+                const makesData = await getMakes();
+                if (makesData.makes) {
+                    filterCache.makes = makesData.makes;
+                    
+                    // Fetch models for ALL makes in parallel
+                    const modelPromises = makesData.makes.map(async (make) => {
+                        try {
+                            const modelsData = await getModels(make);
+                            return { make, models: modelsData.models || [] };
+                        } catch (error) {
+                            console.error(`Error loading models for ${make}:`, error);
+                            return { make, models: [] };
+                        }
+                    });
+                    
+                    const allModels = await Promise.all(modelPromises);
+                    allModels.forEach(({ make, models }) => {
+                        filterCache.modelsByMake[make] = models;
+                    });
+                }
+                
+                // Fetch fuel types
+                const fuelData = await getFuelTypes();
+                if (fuelData.fuel_types) {
+                    filterCache.fuelTypes = fuelData.fuel_types;
+                }
+                
+                // Fetch body types
+                const bodyData = await getBodyTypes();
+                if (bodyData.body_types) {
+                    filterCache.bodyTypes = bodyData.body_types;
+                }
+                
+                console.log('Filter data prefetched:', filterCache);
+            } catch (error) {
+                console.error('Error prefetching filter data:', error);
+            }
+        }
+        
+        // Populate filter dropdowns from cached data
+        async function populateFilterOptions() {
+            try {
+                // Populate makes from cache
+                const makeSelect = document.querySelector('select[name="make"]');
+                if (makeSelect && filterCache.makes.length) {
+                    const currentMake = urlParams.get('make') || '';
+                    makeSelect.innerHTML = '<option value="">Kõik margid</option>';
+                    filterCache.makes.forEach(make => {
+                        if (!make) return; // Skip null/empty values
+                        const option = document.createElement('option');
+                        option.value = make; // Use exact value from API
+                        // Display text: capitalize first letter of each word
+                        const displayText = make.split(' ').map(word => 
+                            word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                        ).join(' ');
+                        option.textContent = displayText;
+                        if (make === currentMake) option.selected = true;
+                        makeSelect.appendChild(option);
+                    });
+                }
+                
+                // Populate fuel types from cache
+                const fuelSelect = document.querySelector('select[name="fuel"]');
+                if (fuelSelect && filterCache.fuelTypes.length) {
+                    const currentFuel = urlParams.get('fuel') || '';
+                    fuelSelect.innerHTML = '<option value="">Kõik</option>';
+                    filterCache.fuelTypes.forEach(fuel => {
+                        if (!fuel) return; // Skip null/empty values
+                        const option = document.createElement('option');
+                        option.value = fuel; // Use exact value from API
+                        // Display text: capitalize first letter
+                        const displayText = fuel.charAt(0).toUpperCase() + fuel.slice(1).toLowerCase();
+                        option.textContent = displayText;
+                        if (fuel === currentFuel) option.selected = true;
+                        fuelSelect.appendChild(option);
+                    });
+                }
+                
+                // Populate body types from cache
+                const bodySelect = document.querySelector('select[name="body_type"]');
+                if (bodySelect && filterCache.bodyTypes.length) {
+                    const currentBody = urlParams.get('body_type') || '';
+                    bodySelect.innerHTML = '<option value="">Kõik</option>';
+                    filterCache.bodyTypes.forEach(body => {
+                        if (!body) return; // Skip null/empty values
+                        const option = document.createElement('option');
+                        option.value = body; // Use exact value from API
+                        // Display text: capitalize first letter of each word
+                        const displayText = body.split(' ').map(word => 
+                            word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                        ).join(' ');
+                        option.textContent = displayText;
+                        if (body === currentBody) option.selected = true;
+                        bodySelect.appendChild(option);
+                    });
+                }
+                
+                // Function to update model dropdown based on selected make
+                function updateModelDropdown(make, selectedModel = '') {
+                    const modelSelect = document.querySelector('select[name="model"]');
+                    if (modelSelect) {
+                        modelSelect.innerHTML = '<option value="">Kõik mudelid</option>';
+                        if (make && filterCache.modelsByMake[make]) {
+                            filterCache.modelsByMake[make].forEach(model => {
+                                if (!model) return; // Skip null/empty values
+                                const option = document.createElement('option');
+                                option.value = model; // Use exact value from API
+                                // Display text: capitalize first letter of each word for better display
+                                const displayText = model.split(' ').map(word => 
+                                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                                ).join(' ');
+                                option.textContent = displayText;
+                                if (model === selectedModel) option.selected = true;
+                                modelSelect.appendChild(option);
+                            });
+                        }
+                    }
+                }
+                
+                // Set up make change handler to populate models from cache
+                const makeSelectElement = document.querySelector('select[name="make"]');
+                if (makeSelectElement) {
+                    makeSelectElement.addEventListener('change', (e) => {
+                        const make = e.target.value;
+                        updateModelDropdown(make);
+                    });
+                    
+                    // Populate models for currently selected make on load
+                    const initialMake = urlParams.get('make') || makeSelectElement.value;
+                    const currentModel = urlParams.get('model') || '';
+                    if (initialMake) {
+                        updateModelDropdown(initialMake, currentModel);
+                    }
+                }
+            } catch (error) {
+                console.error('Error populating filter options:', error);
+            }
+        }
+        
+        // Populate filters from URL parameters
+        function populateFilters() {
+            try {
+                // Vehicle type
+                const vehicleType = urlParams.get('vehicle_type');
+                const resultsTitle = document.querySelector('.results-title h2');
+                
+                if (vehicleType && resultsTitle) {
+                    resultsTitle.textContent = 'Tulemused: ' + getVehicleTypeName(vehicleType);
+                }
+                
+                // Make
+                const make = urlParams.get('make');
+                if (make && make !== '') {
+                    const makeSelect = document.querySelector('select[name="make"]');
+                    if (makeSelect) {
+                        let found = false;
+                        for (let i = 0; i < makeSelect.options.length; i++) {
+                            if (makeSelect.options[i].value === make) {
+                                makeSelect.selectedIndex = i;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            const newOption = document.createElement('option');
+                            newOption.value = make;
+                            newOption.textContent = make.charAt(0).toUpperCase() + make.slice(1);
+                            newOption.selected = true;
+                            makeSelect.appendChild(newOption);
+                        }
+                    }
+                    if (resultsTitle) {
+                        resultsTitle.textContent = 'Tulemused: ' + make.charAt(0).toUpperCase() + make.slice(1);
+                    }
+                }
+                
+                // Model
+                const model = urlParams.get('model');
+                if (model && model !== '') {
+                    const modelSelect = document.querySelector('select[name="model"]');
+                    if (modelSelect) {
+                        let found = false;
+                        for (let i = 0; i < modelSelect.options.length; i++) {
+                            if (modelSelect.options[i].value === model) {
+                                modelSelect.selectedIndex = i;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            const newOption = document.createElement('option');
+                            newOption.value = model;
+                            newOption.textContent = model.charAt(0).toUpperCase() + model.slice(1);
+                            newOption.selected = true;
+                            modelSelect.appendChild(newOption);
+                        }
+                    }
+                    if (resultsTitle) {
+                        const makeName = make ? make.charAt(0).toUpperCase() + make.slice(1) + ' ' : '';
+                        resultsTitle.textContent = 'Tulemused: ' + makeName + model.charAt(0).toUpperCase() + model.slice(1);
+                    }
+                }
+                
+                // Year
+                const minYear = urlParams.get('min_year');
+                const maxYear = urlParams.get('max_year');
+                const yearMinInput = document.querySelector('input[name="min_year"]');
+                const yearMaxInput = document.querySelector('input[name="max_year"]');
+                if (minYear && yearMinInput) yearMinInput.value = minYear;
+                if (maxYear && yearMaxInput) yearMaxInput.value = maxYear;
+                
+                // Price
+                const minPrice = urlParams.get('min_price');
+                const maxPrice = urlParams.get('max_price');
+                const priceMinInput = document.querySelector('input[name="min_price"]');
+                const priceMaxInput = document.querySelector('input[name="max_price"]');
+                if (minPrice && priceMinInput) priceMinInput.value = minPrice;
+                if (maxPrice && priceMaxInput) priceMaxInput.value = maxPrice;
+                
+                // Fuel
+                const fuel = urlParams.get('fuel');
+                if (fuel && fuel !== '') {
+                    const fuelSelect = document.querySelector('select[name="fuel"]');
+                    if (fuelSelect) {
+                        for (let i = 0; i < fuelSelect.options.length; i++) {
+                            if (fuelSelect.options[i].value === fuel) {
+                                fuelSelect.selectedIndex = i;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                // Body type
+                const bodyType = urlParams.get('body_type');
+                if (bodyType && bodyType !== '') {
+                    const bodySelect = document.querySelector('select[name="body_type"]');
+                    if (bodySelect) {
+                        for (let i = 0; i < bodySelect.options.length; i++) {
+                            if (bodySelect.options[i].value === bodyType) {
+                                bodySelect.selectedIndex = i;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                // Transmission
+                const transmission = urlParams.get('transmission');
+                if (transmission && transmission !== '') {
+                    const transmissionSelect = document.querySelector('select[name="transmission"]');
+                    if (transmissionSelect) {
+                        for (let i = 0; i < transmissionSelect.options.length; i++) {
+                            if (transmissionSelect.options[i].value === transmission) {
+                                transmissionSelect.selectedIndex = i;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                // Drive type
+                const driveType = urlParams.get('drive_type');
+                if (driveType && driveType !== '') {
+                    const driveSelect = document.querySelector('select[name="drive_type"]');
+                    if (driveSelect) {
+                        for (let i = 0; i < driveSelect.options.length; i++) {
+                            if (driveSelect.options[i].value === driveType) {
+                                driveSelect.selectedIndex = i;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                // Mileage
+                const minMileage = urlParams.get('min_mileage');
+                const maxMileage = urlParams.get('max_mileage');
+                const mileageMinInput = document.querySelector('input[name="min_mileage"]');
+                const mileageMaxInput = document.querySelector('input[name="max_mileage"]');
+                if (minMileage && mileageMinInput) mileageMinInput.value = minMileage;
+                if (maxMileage && mileageMaxInput) mileageMaxInput.value = maxMileage;
+                
+            } catch (error) {
+                console.log('Filter populate error:', error);
+            }
+        }
+        
+        function getVehicleTypeName(type) {
+            const types = {
+                'car': 'Autod',
+                'van': 'Bussid',
+                'suv': 'Maasturid',
+                'jeep': 'Jeepid'
+            };
+            return types[type] || 'Sõidukid';
+        }
+        
+        // Tab switching
+        document.querySelectorAll('.source-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.source-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', async () => {
+                await prefetchFilterData();
+                await populateFilterOptions();
+                populateFilters();
+                await fetchAndDisplayListings();
+            });
+        } else {
+            (async () => {
+                await prefetchFilterData();
+                await populateFilterOptions();
+                populateFilters();
+                await fetchAndDisplayListings();
+            })();
+        }
+        
+        // Add event listeners to sort dropdowns
+        const sortSelects = document.querySelectorAll('.results-sort select');
+        sortSelects.forEach(select => {
+            select.addEventListener('change', (e) => {
+                const sortBy = e.target.value;
+                sortListings(sortBy);
+                
+                // Sync both dropdowns if there are multiple
+                sortSelects.forEach(other => {
+                    if (other !== e.target) {
+                        other.value = sortBy;
+                    }
+                });
+            });
+        });
+        
+        // Handle filter form submission
+        const filterForm = document.querySelector('.filters-sidebar form');
+        if (filterForm) {
+            filterForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const formData = new FormData(filterForm);
+                const params = new URLSearchParams();
+                
+                for (const [key, value] of formData.entries()) {
+                    if (value) params.append(key, value);
+                }
+                
+                // Redirect to search-results.html with new filters
+                window.location.href = 'search-results.html?' + params.toString();
+            });
+        }
+    </script>
+</body>
+</html>

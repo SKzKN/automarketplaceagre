@@ -1,0 +1,121 @@
+$flaticon_mycollection-font: "flaticon_mycollection";
+
+@font-face {
+    font-family: $flaticon_mycollection-font;
+    src: url("./flaticon_mycollection.woff2?f5a0448568ca8dd20267ea0326b478f7") format("woff2"),
+url("./flaticon_mycollection.woff?f5a0448568ca8dd20267ea0326b478f7") format("woff"),
+url("./flaticon_mycollection.eot?f5a0448568ca8dd20267ea0326b478f7#iefix") format("embedded-opentype"),
+url("./flaticon_mycollection.ttf?f5a0448568ca8dd20267ea0326b478f7") format("truetype"),
+url("./flaticon_mycollection.svg?f5a0448568ca8dd20267ea0326b478f7#flaticon_mycollection") format("svg");
+}
+
+i[class^="flaticon-"]:before, i[class*=" flaticon-"]:before {
+    font-family: flaticon_mycollection !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+$flaticon_mycollection-map: (
+    "car": "\f101",
+    "van": "\f102",
+    "suv-car": "\f103",
+    "off-road": "\f104",
+    "jeep": "\f105",
+    "user": "\f106",
+    "internet": "\f107",
+    "phone": "\f108",
+    "info": "\f109",
+    "hot-sale": "\f10a",
+    "search": "\f10b",
+    "aim": "\f10c",
+    "aim-1": "\f10d",
+    "map": "\f10e",
+    "pin": "\f10f",
+    "check-mark": "\f110",
+    "speedometer": "\f111",
+    "coin": "\f112",
+    "right-up": "\f113",
+    "car-rental": "\f114",
+    "booking": "\f115",
+    "discount": "\f116",
+    "rental": "\f117",
+    "down": "\f118",
+);
+
+.flaticon-car:before {
+    content: map-get($flaticon_mycollection-map, "car");
+}
+.flaticon-van:before {
+    content: map-get($flaticon_mycollection-map, "van");
+}
+.flaticon-suv-car:before {
+    content: map-get($flaticon_mycollection-map, "suv-car");
+}
+.flaticon-off-road:before {
+    content: map-get($flaticon_mycollection-map, "off-road");
+}
+.flaticon-jeep:before {
+    content: map-get($flaticon_mycollection-map, "jeep");
+}
+.flaticon-user:before {
+    content: map-get($flaticon_mycollection-map, "user");
+}
+.flaticon-internet:before {
+    content: map-get($flaticon_mycollection-map, "internet");
+}
+.flaticon-phone:before {
+    content: map-get($flaticon_mycollection-map, "phone");
+}
+.flaticon-info:before {
+    content: map-get($flaticon_mycollection-map, "info");
+}
+.flaticon-hot-sale:before {
+    content: map-get($flaticon_mycollection-map, "hot-sale");
+}
+.flaticon-search:before {
+    content: map-get($flaticon_mycollection-map, "search");
+}
+.flaticon-aim:before {
+    content: map-get($flaticon_mycollection-map, "aim");
+}
+.flaticon-aim-1:before {
+    content: map-get($flaticon_mycollection-map, "aim-1");
+}
+.flaticon-map:before {
+    content: map-get($flaticon_mycollection-map, "map");
+}
+.flaticon-pin:before {
+    content: map-get($flaticon_mycollection-map, "pin");
+}
+.flaticon-check-mark:before {
+    content: map-get($flaticon_mycollection-map, "check-mark");
+}
+.flaticon-speedometer:before {
+    content: map-get($flaticon_mycollection-map, "speedometer");
+}
+.flaticon-coin:before {
+    content: map-get($flaticon_mycollection-map, "coin");
+}
+.flaticon-right-up:before {
+    content: map-get($flaticon_mycollection-map, "right-up");
+}
+.flaticon-car-rental:before {
+    content: map-get($flaticon_mycollection-map, "car-rental");
+}
+.flaticon-booking:before {
+    content: map-get($flaticon_mycollection-map, "booking");
+}
+.flaticon-discount:before {
+    content: map-get($flaticon_mycollection-map, "discount");
+}
+.flaticon-rental:before {
+    content: map-get($flaticon_mycollection-map, "rental");
+}
+.flaticon-down:before {
+    content: map-get($flaticon_mycollection-map, "down");
+}

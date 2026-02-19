@@ -1,0 +1,208 @@
+/* Marketplace Aggregator Custom Styles */
+
+/* Hero section text content */
+.hero-text-content h1 {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.hero-text-content p {
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Marketplace search form styles */
+.marketplace-search .filter-row {
+    margin-bottom: 20px;
+}
+
+/* The default template clips content in the hero; allow the filter card to expand */
+#home {
+    overflow: visible;
+}
+
+.hero-section {
+    min-height: 1000px;
+    padding-bottom: 300px;
+}
+
+#listings {
+    padding-top: 120px;
+}
+
+@media (max-width: 991px) {
+    .hero-section {
+        min-height: 1350px;
+    }
+}
+
+.marketplace-search .filter-row span {
+    display: block;
+    margin-bottom: 8px;
+    color: #0067ff;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.marketplace-search .form-select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #fff;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.marketplace-search .form-select:hover {
+    border-color: #0067ff;
+}
+
+.marketplace-search .form-select:focus {
+    outline: none;
+    border-color: #0067ff;
+    box-shadow: 0 0 0 3px rgba(0, 103, 255, 0.1);
+}
+
+/* Body style options */
+.body-style-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.body-style-options li {
+    flex: 1 1 auto;
+    min-width: calc(50% - 5px);
+}
+
+.body-style-options input[type="checkbox"] {
+    display: none;
+}
+
+.body-style-options label {
+    display: block;
+    padding: 10px 15px;
+    background-color: #f5f5f5;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.body-style-options input[type="checkbox"]:checked + label {
+    background-color: #0067ff;
+    border-color: #0067ff;
+    color: #fff;
+}
+
+.body-style-options label:hover {
+    border-color: #0067ff;
+    background-color: #e8f2ff;
+}
+
+/* Enhanced car listing cards */
+.car-book h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 15px 0 10px;
+    min-height: 50px;
+}
+
+.car-book ul li {
+    font-size: 14px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .body-style-options li {
+        min-width: 100%;
+    }
+    
+    .hero-text-content h1 {
+        font-size: 32px !important;
+    }
+    
+    .hero-text-content p {
+        font-size: 16px !important;
+    }
+}
+
+/* Filter section styling */
+.marketplace-search > span {
+    display: block;
+    margin: 20px 0 10px;
+    color: #0067ff;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* Submit button enhancement */
+.marketplace-search .btn {
+    margin-top: 18px;
+}
+
+/* Make the submit button visible but subtle on white backgrounds */
+.marketplace-search .btn,
+.tab-content.tabtwo .btn {
+    background: #f3f6fb;
+    border: 1px solid #dbe6ff;
+    box-shadow: 0 6px 18px rgba(0, 103, 255, 0.12);
+}
+
+.marketplace-search .btn span,
+.tab-content.tabtwo .btn span {
+    color: #0b4fd6;
+}
+
+.marketplace-search .btn:hover,
+.tab-content.tabtwo .btn:hover {
+    background: #eaf1ff;
+    border-color: #c8d9ff;
+}
+
+/* Ensure the filter card has room for the button */
+.tabtwo form.marketplace-search {
+    padding-bottom: 36px;
+}
+
+/* Pull up Featured Listings section to overlap filter box */
+#listings {
+    margin-top: -100px;
+    position: relative;
+    z-index: 10;
+    background: white;
+}
+
+/* Make filter form overlap the listings section */
+.tab-content.tabtwo {
+    position: relative;
+    z-index: 20;
+    margin-bottom: 80px;
+}
+
+/* Darken hero background image */
+.hero-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.hero-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-section .img-slider {
+    opacity: 0.6;
+}
