@@ -77,7 +77,7 @@ class Auto24TaxonomyExtractor(SourceTaxonomyExtractor):
             return []
 
     def _iter_series_and_models(
-        self, tree: List[Dict[str, Any]],
+        tree: List[Dict[str, Any]],
     ) -> Iterable[Tuple[Dict[str, Any], Optional[List[Dict[str, Any]]]]]:
         """
         Iterates over the auto24 tree and yields tuples of (node, children).

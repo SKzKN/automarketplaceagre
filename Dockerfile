@@ -4,7 +4,7 @@ FROM python:3.11-slim AS frontend-prep
 WORKDIR /app
 
 # Copy static frontend files from "Front end right"
-COPY "Front end right/" /app/static/frontend/
+COPY ["Front end right/", "/app/static/frontend/"]
 
 # Stage 2: Base Python Image with Dependencies
 FROM python:3.11-slim AS base
@@ -46,21 +46,28 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload
 # Stage 4: Scrapers Service (for one-time runs)
 FROM base AS scrapers
 
+# Install dos2unix for handling Windows line endings
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    dos2unix \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy only scrapers code
 COPY backend/scrapers /app/scrapers
 
 # Copy and set entrypoint (seeds taxonomy then runs scrapers)
 COPY backend/scrapers/entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+# Convert Windows line endings to Unix and make executable
+RUN dos2unix /app/entrypoint.sh && chmod +x /app/entrypoint.sh
 
 CMD ["/app/entrypoint.sh"]
 
 # Stage 5: Cron Service (scheduled scraper runs)
 FROM base AS cron
 
-# Install cron
+# Install cron and dos2unix for line ending conversion
 RUN apt-get update && apt-get install -y --no-install-recommends \
     cron \
+    dos2unix \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy scrapers code (needed for cron to run them)
@@ -68,7 +75,8 @@ COPY backend/scrapers /app/scrapers
 
 # Copy entrypoint (handles seeding, env passthrough, configurable schedule)
 COPY backend/cron/entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+# Convert Windows line endings to Unix and make executable
+RUN dos2unix /app/entrypoint.sh && chmod +x /app/entrypoint.sh
 
 # Create log file for cron output
 RUN touch /var/log/cron.log

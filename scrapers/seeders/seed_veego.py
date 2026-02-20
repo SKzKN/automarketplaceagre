@@ -84,18 +84,18 @@ class VeegoExtractor(SourceTaxonomyExtractor):
 
     def _fetch_makes(self) -> list[tuple[str, str]]:
         """Fetches the list of makes from Veego and returns list of (make_id, make_label)."""
+        makes = []
         try:
             response = self.session.get("https://api.veego.ee/api/attr/vehicles/makes?top=false&all=true")
             response.raise_for_status()
-            makes_json = response.json()
+            items = response.json()
 
-            if not isinstance(makes_json, list):
+            if not isinstance(items, list):
                 return []
             
-            result = []
-            for make in makes_json:
-                result.append((str(make.get("id")), make.get("name", "")))
-            return result
+            for item in items:
+                makes.append((str(item.get("id")), item.get("name", "")))
+            return makes
         except json.JSONDecodeError as e:
             logger.error(f"JSON decode error while fetching makes: {e}")
             return []

@@ -1,6 +1,6 @@
 import { getMakes, getModels, getFuelTypes, getBodyTypes } from './api.js';
 
-window.apibaseurl = 'https://car-index.fly.dev'; // <-- Set this!
+window.apibaseurl = 'http://localhost:8000'; // <-- Set this!
 
 // Cache for all filter data (prefetched)
 const filterCache = {
@@ -16,38 +16,41 @@ const defaultOption = (label = 'Kõik') => `<option value="">${label}</option>`;
 // Prefetch ALL filter data at once
 async function prefetchFilterData() {
     try {
-        // Fetch all makes
+        // Fetch all makes - API returns array directly: [{id, name, is_top}, ...]
         const makesData = await getMakes();
-        if (makesData.makes) {
-            filterCache.makes = makesData.makes;
+        if (Array.isArray(makesData)) {
+            // Separate top brands and others, then sort each group
+            const topBrands = makesData.filter(m => m.is_top).sort((a, b) => a.name.localeCompare(b.name));
+            const otherBrands = makesData.filter(m => !m.is_top).sort((a, b) => a.name.localeCompare(b.name));
+            filterCache.makes = [...topBrands, ...otherBrands];
             
             // Fetch models for ALL makes in parallel
-            const modelPromises = makesData.makes.map(async (make) => {
+            const modelPromises = filterCache.makes.map(async (make) => {
                 try {
-                    const modelsData = await getModels(make);
-                    return { make, models: modelsData.models || [] };
+                    const modelsData = await getModels(make.id);
+                    return { makeId: make.id, models: Array.isArray(modelsData) ? modelsData : [] };
                 } catch (error) {
-                    console.error(`Error loading models for ${make}:`, error);
-                    return { make, models: [] };
+                    console.error(`Error loading models for ${make.name}:`, error);
+                    return { makeId: make.id, models: [] };
                 }
             });
             
             const allModels = await Promise.all(modelPromises);
-            allModels.forEach(({ make, models }) => {
-                filterCache.modelsByMake[make] = models;
+            allModels.forEach(({ makeId, models }) => {
+                filterCache.modelsByMake[makeId] = models;
             });
         }
         
-        // Fetch fuel types
+        // Fetch fuel types - API returns array directly
         const fuelData = await getFuelTypes();
-        if (fuelData.fuel_types) {
-            filterCache.fuelTypes = fuelData.fuel_types;
+        if (Array.isArray(fuelData)) {
+            filterCache.fuelTypes = fuelData.filter(f => f); // Remove null/empty
         }
         
-        // Fetch body types
+        // Fetch body types - API returns array directly
         const bodyData = await getBodyTypes();
-        if (bodyData.body_types) {
-            filterCache.bodyTypes = bodyData.body_types;
+        if (Array.isArray(bodyData)) {
+            filterCache.bodyTypes = bodyData.filter(b => b); // Remove null/empty
         }
         
         console.log('Filter data prefetched:', filterCache);
@@ -57,20 +60,20 @@ async function prefetchFilterData() {
 }
 
 async function populateForm(form) {
-  // Populate makes from cache
+  // Populate makes from cache - makes are now objects with {id, name, is_top}
   const makeSelect = form.querySelector('select[name="make"]');
   if (makeSelect) {
     makeSelect.innerHTML = defaultOption('Kõik margid');
     if (filterCache.makes.length) {
       filterCache.makes.forEach(make => {
-        if (!make) return; // Skip null/empty values
+        if (!make || !make.id) return; // Skip invalid values
         const opt = document.createElement('option');
-        opt.value = make; // Use exact value from API
-        // Display text: capitalize first letter of each word
-        const displayText = make.split(' ').map(word => 
-          word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-        ).join(' ');
-        opt.textContent = displayText;
+        opt.value = make.id; // Use make ID as value
+        opt.textContent = make.name; // Display make name
+        // Optionally add styling for top brands
+        if (make.is_top) {
+          opt.style.fontWeight = 'bold';
+        }
         makeSelect.appendChild(opt);
       });
     }
@@ -83,17 +86,13 @@ async function populateForm(form) {
       // Update models when make changes (from cache)
       makeSelect.addEventListener('change', () => {
         modelSelect.innerHTML = defaultOption('Kõik mudelid');
-        const selectedMake = makeSelect.value;
-        if (selectedMake && filterCache.modelsByMake[selectedMake]) {
-          filterCache.modelsByMake[selectedMake].forEach(model => {
-            if (!model) return; // Skip null/empty values
+        const selectedMakeId = makeSelect.value;
+        if (selectedMakeId && filterCache.modelsByMake[selectedMakeId]) {
+          filterCache.modelsByMake[selectedMakeId].forEach(model => {
+            if (!model || !model.id) return; // Skip invalid values
             const opt = document.createElement('option');
-            opt.value = model; // Use exact value from API
-            // Display text: capitalize first letter of each word
-            const displayText = model.split(' ').map(word => 
-              word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-            ).join(' ');
-            opt.textContent = displayText;
+            opt.value = model.id; // Use model ID as value
+            opt.textContent = model.name; // Display model name
             modelSelect.appendChild(opt);
           });
         }
@@ -109,9 +108,7 @@ async function populateForm(form) {
       if (!fuel) return; // Skip null/empty values
       const opt = document.createElement('option');
       opt.value = fuel; // Use exact value from API
-      // Display text: capitalize first letter
-      const displayText = fuel.charAt(0).toUpperCase() + fuel.slice(1).toLowerCase();
-      opt.textContent = displayText;
+      opt.textContent = fuel; // Display as-is
       fuelSelect.appendChild(opt);
     });
   }
@@ -124,11 +121,7 @@ async function populateForm(form) {
       if (!body) return; // Skip null/empty values
       const opt = document.createElement('option');
       opt.value = body; // Use exact value from API
-      // Display text: capitalize first letter of each word
-      const displayText = body.split(' ').map(word => 
-        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-      ).join(' ');
-      opt.textContent = displayText;
+      opt.textContent = body; // Display as-is
       bodySelect.appendChild(opt);
     });
   }

@@ -12,8 +12,8 @@ class ScraperConfig(BaseSettings):
     collection_name: str = "car_listings"
 
     # Scraping settings
-    max_pages: Optional[int] = None  # None = unlimited scraping
-    request_delay: float = 1.5  # Increased delay to avoid rate limiting
+    max_pages: Optional[int] = None
+    request_delay: float = 1
     request_timeout: int = 30
     max_retries: int = 3
     

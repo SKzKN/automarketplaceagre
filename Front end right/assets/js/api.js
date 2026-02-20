@@ -1,6 +1,7 @@
 // Car Marketplace Aggregator API Client
 // Set this variable to your backend API base URL, e.g. 'http://localhost:8000' or your deployed endpoint
-let apibaseurl = 'http://localhost:8000';
+// PRODUCTION: Railway backend URL
+let apibaseurl = 'https://automarketplaceagre-production.up.railway.app';
 
 // Helper for GET requests
 async function apiGet(path, params = {}) {

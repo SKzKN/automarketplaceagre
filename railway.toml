@@ -1,0 +1,26 @@
+# Railway configuration for multi-service deployment
+
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+# Default service (API)
+[build.buildCommand]
+
+# API Service
+[[services]]
+name = "api"
+dockerfile = "Dockerfile"
+dockerContext = "."
+target = "api"
+
+[services.healthcheck]
+path = "/health"
+port = 8000
+
+# Cron Service
+[[services]]
+name = "cron"
+dockerfile = "Dockerfile"
+dockerContext = "."
+target = "cron"
