@@ -4,9 +4,8 @@ services:
     runtime: docker
     region: frankfurt
     plan: free
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: ./Dockerfile.render
     dockerContext: .
-    dockerCommand: docker build --target api -t estonian-car-api .
     healthCheckPath: /health
     envVars:
       - key: PORT
