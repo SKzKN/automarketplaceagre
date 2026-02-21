@@ -1,0 +1,47 @@
+# Fly.io API Service Configuration
+app = "estonian-car-marketplace-api"
+primary_region = "ams" # Amsterdam (closest to Estonia)
+
+[build]
+  dockerfile = "Dockerfile"
+  build-target = "api"
+
+[env]
+  PORT = "8000"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+  
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    timeout = "5s"
+    path = "/health"
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 8000
+  
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+    force_https = true
+  
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+  
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+[[vm]]
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1

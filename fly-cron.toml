@@ -1,0 +1,18 @@
+# Fly.io Cron Service Configuration
+app = "estonian-car-marketplace-cron"
+primary_region = "ams" # Amsterdam (closest to Estonia)
+
+[build]
+  dockerfile = "Dockerfile"
+  build-target = "cron"
+
+[env]
+  # No PORT needed for cron service
+
+[[services]]
+  # No HTTP service - this is a background cron job
+
+[[vm]]
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1
