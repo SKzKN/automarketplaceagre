@@ -9,7 +9,7 @@ def health_check():
     return {"status": "healthy"}
 
 
-@router.get("/debug/db")
+@router.get("/api/debug/db")
 def debug_db():
     """Debug endpoint to check database connection and configuration."""
     try:
