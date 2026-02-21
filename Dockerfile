@@ -31,6 +31,9 @@ CMD ["rm", "requirements.txt"]
 # App folder is mounted via docker-compose for hot reload
 FROM base AS api
 
+# Copy backend application code for Railway deployment
+COPY backend/app /app/app
+
 # Copy static frontend files OUTSIDE of /app/app to avoid volume mount override
 COPY --from=frontend-prep /app/static/frontend /app/static/frontend
 
@@ -40,8 +43,8 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Run the FastAPI application with reload enabled
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Run the FastAPI application (no reload in production)
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
 # Stage 4: Scrapers Service (for one-time runs)
 FROM base AS scrapers
