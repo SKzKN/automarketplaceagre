@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: estonian-car-api
+    runtime: docker
+    region: frankfurt
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: docker build --target api -t estonian-car-api .
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 8000
