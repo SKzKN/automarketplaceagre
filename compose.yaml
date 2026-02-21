@@ -19,7 +19,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.local
       target: api
     container_name: car_marketplace_api
     restart: unless-stopped
@@ -42,7 +42,7 @@ services:
   scrapers:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.local
       target: scrapers
     container_name: car_marketplace_scrapers
     depends_on:
@@ -55,7 +55,7 @@ services:
   cron:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.local
       target: cron
     container_name: car_marketplace_cron
     restart: unless-stopped
