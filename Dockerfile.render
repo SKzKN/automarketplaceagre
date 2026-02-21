@@ -1,16 +1,12 @@
 # Render.com API-only Dockerfile (no multi-stage)
-FROM python:3.11-slim
+# Using full python image for complete OpenSSL/TLS support required by MongoDB Atlas
+FROM python:3.11
 
 WORKDIR /app
 
-# Install system dependencies including SSL certificates
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    gcc \
-    libffi-dev \
     curl \
-    ca-certificates \
-    libssl-dev \
-    && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
