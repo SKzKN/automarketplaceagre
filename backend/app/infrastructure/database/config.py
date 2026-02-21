@@ -8,6 +8,9 @@ from pydantic import computed_field
 class MongoDBConfig(BaseSettings):
     """MongoDB configuration."""
 
+    # Support direct URI (for MongoDB Atlas) or individual components
+    uri: Optional[str] = None
+    
     host: str = "mongodb"
     port: int = 27017
     username: Optional[str] = None
@@ -17,8 +20,10 @@ class MongoDBConfig(BaseSettings):
     
 
     @computed_field
-    def uri(self) -> str:
-        """Construct MongoDB URI."""
+    def connection_uri(self) -> str:
+        """Get MongoDB connection URI - use direct URI if provided, otherwise construct it."""
+        if self.uri:
+            return self.uri
         if self.username and self.password:
             return f"mongodb://{self.username}:{self.password}@{self.host}:{self.port}/{self.database_name}"
         return f"mongodb://{self.host}:{self.port}/{self.database_name}"

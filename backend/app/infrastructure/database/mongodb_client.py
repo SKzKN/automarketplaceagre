@@ -104,7 +104,7 @@ def init_db(config: MongoDBConfig) -> None:
     if not _client:
         _client = MongoDBClient(
         )
-        _client.connect(uri=config.uri, database_name=config.database_name)
+        _client.connect(uri=config.connection_uri, database_name=config.database_name)
 
 def get_db() -> Database:
     """Get the database instance."""
