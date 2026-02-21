@@ -27,7 +27,13 @@ class MongoDBClient:
         if self._client is not None:
             return
         
-        self._client = MongoClient(uri)
+        # Create MongoClient with explicit TLS settings for MongoDB Atlas
+        self._client = MongoClient(
+            uri,
+            tls=True,
+            tlsAllowInvalidCertificates=False,
+            serverSelectionTimeoutMS=30000,
+        )
         self._db = self._client.get_database(database_name)
         self._ensure_indexes()
         
