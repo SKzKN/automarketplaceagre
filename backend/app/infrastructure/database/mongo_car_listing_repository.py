@@ -236,12 +236,19 @@ class MongoCarListingRepository(ICarListingRepository):
     # ---- Taxonomy methods (canonical collections) ----
 
     def get_all_makes(self) -> List[MakeDTO]:
-        """Get all canonical makes from taxonomy, with top brands first."""
+        """Get makes that have actual car listings, with top brands first."""
         try:
-            # Sort by is_top descending (True first), then alphabetically by name
-            cursor = self.makes_collection.find({}).sort(
-                [("is_top", -1), ("name_et", 1)]
-            )
+            # Get distinct make_ids from actual car listings
+            make_ids_with_listings = self.collection.distinct("make_id", {"make_id": {"$ne": None}})
+            
+            if not make_ids_with_listings:
+                return []
+            
+            # Get make details from taxonomy for makes that have listings
+            cursor = self.makes_collection.find({
+                "_id": {"$in": make_ids_with_listings}
+            }).sort([("is_top", -1), ("name_et", 1)])
+            
             return [
                 MakeDTO(
                     id=str(doc["_id"]),
@@ -255,16 +262,27 @@ class MongoCarListingRepository(ICarListingRepository):
             raise QueryError(f"Failed to get makes: {e}")
 
     def get_series_for_make(self, make_id: str) -> List[SeriesDTO]:
-        """Get all series for a given make from taxonomy."""
+        """Get series for a given make that have actual car listings."""
         try:
             make_oid = ObjectId(make_id)
         except (InvalidId, TypeError):
             raise InvalidIdError("make_id", make_id)
 
         try:
-            cursor = self.series_collection.find({"make_id": make_oid}).sort(
-                "name_et", 1
+            # Get distinct series_ids from actual car listings for this make
+            series_ids_with_listings = self.collection.distinct(
+                "series_id", 
+                {"make_id": make_oid, "series_id": {"$ne": None}}
             )
+            
+            if not series_ids_with_listings:
+                return []
+            
+            # Get series details from taxonomy
+            cursor = self.series_collection.find({
+                "_id": {"$in": series_ids_with_listings}
+            }).sort("name_et", 1)
+            
             return [
                 SeriesDTO(
                     id=str(doc["_id"]),
@@ -280,23 +298,37 @@ class MongoCarListingRepository(ICarListingRepository):
     def get_models_for_make(
         self, make_id: str, series_id: Optional[str] = None
     ) -> List[ModelDTO]:
-        """Get all models for a given make (optionally filtered by series) from taxonomy."""
+        """Get models for a given make that have actual car listings."""
         try:
             make_oid = ObjectId(make_id)
         except (InvalidId, TypeError):
             raise InvalidIdError("make_id", make_id)
 
-        query: Dict = {"make_id": make_oid}
-
+        # First, get distinct model_ids from actual car listings
+        listings_query: Dict = {
+            "make_id": make_oid,
+            "model_id": {"$ne": None}
+        }
+        
         if series_id:
             try:
                 series_oid = ObjectId(series_id)
-                query["series_id"] = series_oid
+                listings_query["series_id"] = series_oid
             except (InvalidId, TypeError):
                 raise InvalidIdError("series_id", series_id)
 
         try:
-            cursor = self.models_collection.find(query).sort("name_et", 1)
+            # Get model_ids that actually have listings
+            model_ids_with_listings = self.collection.distinct("model_id", listings_query)
+            
+            if not model_ids_with_listings:
+                return []
+            
+            # Look up model details from taxonomy
+            cursor = self.models_collection.find({
+                "_id": {"$in": model_ids_with_listings}
+            }).sort("name_et", 1)
+            
             return [
                 ModelDTO(
                     id=str(doc["_id"]),
