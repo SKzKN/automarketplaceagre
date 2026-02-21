@@ -28,12 +28,17 @@ class MongoDBClient:
             return
         
         # Create MongoClient with explicit TLS settings for MongoDB Atlas
-        self._client = MongoClient(
-            uri,
-            tls=True,
-            tlsAllowInvalidCertificates=False,
-            serverSelectionTimeoutMS=30000,
-        )
+        # Note: mongodb+srv:// protocol already implies TLS, so only set tls=True for mongodb:// URIs
+        client_kwargs = {
+            "serverSelectionTimeoutMS": 30000,
+        }
+        
+        # Only add explicit TLS settings for non-SRV URIs
+        if uri and not uri.startswith("mongodb+srv://"):
+            client_kwargs["tls"] = True
+            client_kwargs["tlsAllowInvalidCertificates"] = False
+        
+        self._client = MongoClient(uri, **client_kwargs)
         self._db = self._client.get_database(database_name)
         self._ensure_indexes()
         
