@@ -1,6 +1,6 @@
 import { getMakes, getModels, getFuelTypes, getBodyTypes } from './api.js';
 
-window.apibaseurl = 'http://localhost:8000'; // <-- Set this!
+window.apibaseurl = 'https://automarketplaceagre.onrender.com';
 
 // Cache for all filter data (prefetched)
 const filterCache = {
