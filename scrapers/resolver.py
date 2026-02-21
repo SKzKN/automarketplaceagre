@@ -122,7 +122,7 @@ def resolve_all_unresolved(repo: ScraperRepository, *, limit: int = 0) -> Dict[s
     If limit=0 => no limit.
     """
     query = {"$or": [{"make_id": {"$exists": False}}, {"model_id": {"$exists": False}}]}
-    cursor = repo.car_listings.find(query, no_cursor_timeout=True)
+    cursor = repo.car_listings.find(query)
     if limit and limit > 0:
         cursor = cursor.limit(limit)
     
@@ -147,7 +147,7 @@ def update_listings_resolving(repo: ScraperRepository, *, limit: int = 0) -> Non
     """
     Update listings all listings (even resolved) with canonical ids.
     """
-    cursor = repo.car_listings.find({}, no_cursor_timeout=True)
+    cursor = repo.car_listings.find({})
     if limit and limit > 0:
         cursor = cursor.limit(limit)
 
