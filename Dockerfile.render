@@ -1,6 +1,6 @@
 # Render.com API-only Dockerfile (no multi-stage)
-# Using full python image for complete OpenSSL/TLS support required by MongoDB Atlas
-FROM python:3.11
+# Using Debian Bullseye base for stable OpenSSL/TLS support with MongoDB Atlas
+FROM python:3.11-bullseye
 
 WORKDIR /app
 
