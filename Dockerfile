@@ -46,25 +46,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
 # Run the FastAPI application (no reload in production)
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
-# Stage 4: Scrapers Service (for one-time runs)
-FROM base AS scrapers
-
-# Install dos2unix for handling Windows line endings
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    dos2unix \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy only scrapers code
-COPY backend/scrapers /app/scrapers
-
-# Copy and set entrypoint (seeds taxonomy then runs scrapers)
-COPY backend/scrapers/entrypoint.sh /app/entrypoint.sh
-# Convert Windows line endings to Unix and make executable
-RUN dos2unix /app/entrypoint.sh && chmod +x /app/entrypoint.sh
-
-CMD ["/app/entrypoint.sh"]
-
-# Stage 5: Cron Service (scheduled scraper runs)
+# Stage 4: Cron Service (scheduled scraper runs)
 FROM base AS cron
 
 # Install cron and dos2unix for line ending conversion
@@ -85,3 +67,21 @@ RUN dos2unix /app/entrypoint.sh && chmod +x /app/entrypoint.sh
 RUN touch /var/log/cron.log
 
 CMD ["/app/entrypoint.sh"]
+
+# Stage 5: API Service with Frontend (DEFAULT STAGE - must be last)
+FROM base AS api
+
+# Copy backend application code for Railway deployment
+COPY backend/app /app/app
+
+# Copy static frontend files OUTSIDE of /app/app to avoid volume mount override
+COPY --from=frontend-prep /app/static/frontend /app/static/frontend
+
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Run the FastAPI application (no reload in production)
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
