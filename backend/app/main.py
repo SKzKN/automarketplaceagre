@@ -96,8 +96,11 @@ def _setup_frontend_static_files(app: FastAPI) -> None:
     # Serve index.html for root and other non-API routes
     @app.get("/{full_path:path}")
     async def serve_frontend(full_path: str):
-        # Don't intercept API routes, health check, or static assets
-        if full_path.startswith("api") or full_path.startswith("assets") or full_path == "health":
+        # Don't intercept API routes, health check, debug endpoints, or static assets
+        if (full_path.startswith("api/") or full_path == "api" or 
+            full_path.startswith("assets/") or full_path == "assets" or 
+            full_path.startswith("debug/") or full_path == "debug" or
+            full_path == "health"):
             return None
         
         # Serve index.html for root
