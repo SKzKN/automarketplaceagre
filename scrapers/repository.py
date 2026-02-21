@@ -69,7 +69,18 @@ class ScraperRepository:
         if self._client is not None:
             return
 
-        self._client = MongoClient(self.config.mongodb_uri)
+        # Create MongoClient with conditional TLS settings
+        # Note: mongodb+srv:// protocol already implies TLS
+        client_kwargs = {
+            "serverSelectionTimeoutMS": 30000,
+        }
+        
+        # Only add explicit TLS settings for non-SRV URIs
+        if self.config.mongodb_uri and not self.config.mongodb_uri.startswith("mongodb+srv://"):
+            client_kwargs["tls"] = True
+            client_kwargs["tlsAllowInvalidCertificates"] = False
+        
+        self._client = MongoClient(self.config.mongodb_uri, **client_kwargs)
         self._db = self._client.get_database(self.config.database_name)
         self._ensure_indexes()
         logger.info("Connected to MongoDB: %s", self.config.database_name)

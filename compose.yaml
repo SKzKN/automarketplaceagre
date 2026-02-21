@@ -45,9 +45,7 @@ services:
       dockerfile: Dockerfile
       target: scrapers
     container_name: car_marketplace_scrapers
-    depends_on:
-      mongodb:
-        condition: service_healthy
+    # NOTE: No depends_on mongodb - scrapers connect directly to MongoDB Atlas via .env.scrapers
     env_file: .env.scrapers
     profiles:
       - scrapers  # Only runs when explicitly requested
