@@ -13,6 +13,42 @@ const filterCache = {
 // Helper to populate select options
 const defaultOption = (label = 'Kõik') => `<option value="">${label}</option>`;
 
+const normalizeBrandKey = (value = '') => value
+  .toString()
+  .trim()
+  .toLowerCase()
+  .replace(/&/g, 'and')
+  .replace(/[^a-z0-9]+/g, '-');
+
+function findMakeByBrandKey(brandKey) {
+  const normalizedBrandKey = normalizeBrandKey(brandKey);
+  return filterCache.makes.find(make => {
+    if (!make || !make.id || !make.name) return false;
+    const normalizedName = normalizeBrandKey(make.name);
+    return normalizedName === normalizedBrandKey;
+  }) || null;
+}
+
+function initQuickBrandButtons() {
+  const brandButtons = document.querySelectorAll('.brand-filter-btn');
+  if (!brandButtons.length) return;
+
+  brandButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const brandKey = button.dataset.brand || button.textContent || '';
+      const make = findMakeByBrandKey(brandKey);
+
+      if (!make) {
+        console.warn(`Quick brand button could not resolve make: ${brandKey}`);
+        return;
+      }
+
+      const params = new URLSearchParams({ make: make.id });
+      window.location.href = 'search-results.html?' + params.toString();
+    });
+  });
+}
+
 // Prefetch ALL filter data at once
 async function prefetchFilterData() {
     try {
@@ -129,6 +165,7 @@ async function populateForm(form) {
 async function initSearchForms() {
   // First, prefetch all filter data
   await prefetchFilterData();
+  initQuickBrandButtons();
   
   const forms = document.querySelectorAll('.search-form');
   for (const form of forms) {
