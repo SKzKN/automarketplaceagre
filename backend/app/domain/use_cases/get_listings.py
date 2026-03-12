@@ -51,3 +51,7 @@ class GetListingsUseCase:
             )
             for listing in listings
         ]
+
+    def count(self, filters: ListingFilters = None) -> int:
+        filters = filters or ListingFilters()
+        return self._repository.count(filters)

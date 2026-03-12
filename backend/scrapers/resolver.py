@@ -48,7 +48,7 @@ def resolve_one_listing(repo: ScraperRepository, listing: Dict[str, Any]) -> Dic
     series = listing.get("series")
     model = listing.get("model")
 
-    if not source_site or not make or not model:
+    if not source_site or not make:
         return {"make_id": None, "series_id": None, "model_id": None}
 
     source_tax = listing.get("source_taxonomy") or {}
@@ -101,7 +101,7 @@ def resolve_one_listing(repo: ScraperRepository, listing: Dict[str, Any]) -> Dic
                 source_key=str(src_model_id), 
                 make_canonical_id=make_id
             )
-        if model_map is None:
+        if model_map is None and model:
             model_map = _find_mapping_by_text(
                 repo,
                 source_site=source_site,
@@ -121,25 +121,42 @@ def resolve_all_unresolved(repo: ScraperRepository, *, limit: int = 0) -> Dict[s
     Resolve listings that don't have canonical ids yet.
     If limit=0 => no limit.
     """
-    query = {"$or": [{"make_id": {"$exists": False}}, {"model_id": {"$exists": False}}]}
-    cursor = repo.car_listings.find(query, no_cursor_timeout=True)
-    if limit and limit > 0:
-        cursor = cursor.limit(limit)
+    query = {"$or": [{"make_id": {"$exists": False}}, {"make_id": None}]}
     
-
+    # Process in batches to avoid cursor timeout on MongoDB Atlas free tier.
+    # Always fetch from skip=0: as docs get resolved they leave the query,
+    # so we naturally progress through all unresolved docs.
+    batch_size = 1000
     updated = 0
     skipped = 0
-
-    for listing in cursor:
-        ids = resolve_one_listing(repo, listing)
-        if ids["make_id"] and ids["model_id"]:
-            repo.car_listings.update_one(
-                {"_id": listing["_id"]},
-                {"$set": {"make_id": ids["make_id"], "series_id": ids["series_id"], "model_id": ids["model_id"]}},
-            )
-            updated += 1
-        else:
-            skipped += 1
+    
+    while True:
+        cursor = repo.car_listings.find(query).limit(batch_size)
+        batch_listings = list(cursor)
+        
+        if not batch_listings:
+            break
+            
+        batch_updated = 0
+        for listing in batch_listings:
+            ids = resolve_one_listing(repo, listing)
+            if ids["make_id"]:
+                repo.car_listings.update_one(
+                    {"_id": listing["_id"]},
+                    {"$set": {"make_id": ids["make_id"], "series_id": ids["series_id"], "model_id": ids["model_id"]}},
+                )
+                updated += 1
+                batch_updated += 1
+            else:
+                skipped += 1
+        
+        # If nothing resolved in this batch, all remaining are unresolvable
+        if batch_updated == 0:
+            break
+        
+        # Respect the limit parameter if set
+        if limit and limit > 0 and (updated + skipped) >= limit:
+            break
 
     return {"updated": updated, "skipped": skipped}
 
@@ -156,7 +173,7 @@ def update_listings_resolving(repo: ScraperRepository, *, limit: int = 0) -> Non
 
     for listing in cursor:
         ids = resolve_one_listing(repo, listing)
-        if ids["make_id"] and ids["model_id"]:
+        if ids["make_id"]:
             repo.car_listings.update_one(
                 {"_id": listing["_id"]},
                 {"$set": {"make_id": ids["make_id"], "series_id": ids["series_id"], "model_id": ids["model_id"]}},

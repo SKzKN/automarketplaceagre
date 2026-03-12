@@ -20,6 +20,10 @@ async function apiGet(path, params = {}) {
 export async function getListings(params = {}) {
     return await apiGet('/api/listings/', params);
 }
+export async function getListingsCount(params = {}) {
+    const response = await apiGet('/api/listings/count', params);
+    return response.count;
+}
 export async function getListingById(listing_id) {
     return await apiGet(`/api/listings/${listing_id}`);
 }

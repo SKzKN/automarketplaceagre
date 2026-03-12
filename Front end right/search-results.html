@@ -775,7 +775,7 @@
             <div class="results-header">
                 <div class="results-title">
                     <h2>Otsingu tulemused</h2>
-                    <span class="results-count">0</span>
+                    <span class="results-count">0</span> <span class="results-count-label" style="font-size:13px;color:#666;margin-left:4px;">kuulutust</span>
                 </div>
                 <div class="results-sort">
                     <label>Sorteeri:</label>
@@ -840,7 +840,7 @@
     <script src="assets/js/bootstrap.min.js"></script>
     <script type="module">
         // Import API functions
-        import { getListings, getMakes, getModels, getFuelTypes, getBodyTypes } from './assets/js/api.js';
+        import { getListings, getListingsCount, getMakes, getModels, getFuelTypes, getBodyTypes } from './assets/js/api.js';
         
         // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -855,6 +855,7 @@
         
         // Store current listings globally for sorting
         let currentListings = [];
+        let currentTotalCount = 0;
         
         // Get source logo based on source site
         function getSourceLogo(sourceSite) {
@@ -874,7 +875,7 @@
         }
         
         // Render car listings dynamically
-        function renderListings(listings) {
+        function renderListings(listings, totalCount) {
             const main = document.querySelector('.results-main');
             if (!main) return;
             
@@ -886,7 +887,7 @@
             if (!Array.isArray(listings) || !listings.length) {
                 main.insertAdjacentHTML('beforeend', '<p style="padding: 20px; text-align: center; color: #666;">Ühtegi autot ei leitud.</p>');
                 const countSpan = document.querySelector('.results-count');
-                if (countSpan) countSpan.textContent = '0';
+                if (countSpan) countSpan.textContent = '0 / 0';
                 return;
             }
             
@@ -929,7 +930,11 @@
             
             // Update results count
             const countSpan = document.querySelector('.results-count');
-            if (countSpan) countSpan.textContent = listings.length;
+            if (countSpan) {
+                const shown = listings.length;
+                const total = (totalCount !== undefined && totalCount !== null) ? totalCount : shown;
+                countSpan.textContent = total > shown ? `${shown} / ${total}` : `${shown}`;
+            }
         }
         
         // Sort listings based on sort option
@@ -957,7 +962,7 @@
                     break;
             }
             
-            renderListings(sorted);
+            renderListings(sorted, currentTotalCount);
         }
         
         // Show loading spinner
@@ -1000,9 +1005,13 @@
                 if (urlParams.get('transmission')) filters.transmission = urlParams.get('transmission');
                 if (urlParams.get('drive_type')) filters.drive_type = urlParams.get('drive_type');
                 
-                const listings = await getListings(filters);
+                const [listings, totalCount] = await Promise.all([
+                    getListings({ ...filters, limit: 100 }),
+                    getListingsCount(filters)
+                ]);
                 currentListings = listings;
-                renderListings(listings);
+                currentTotalCount = totalCount || listings.length;
+                renderListings(listings, currentTotalCount);
             } catch (error) {
                 console.error('Error fetching listings:', error);
                 const main = document.querySelector('.results-main');
@@ -1351,7 +1360,7 @@
             });
         });
         
-        // Handle filter form submission
+        // Handle filter form su        ir        irm https://fly.io/install.ps1 | iexission
         const filterForm = document.querySelector('.filters-sidebar form');
         if (filterForm) {
             filterForm.addEventListener('submit', (e) => {

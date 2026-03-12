@@ -62,13 +62,22 @@ async def run_single_scraper(
             result = repository.save_listings(listings, run_id=run_id)
 
             # Delete listings that disappeared from the source.
-            # Important: we only do cleanup when we successfully scraped SOME listings.
-            deleted = repository.delete_stale_listings(source_site=site_name, run_id=run_id)
-            logger.info(
-                f"{site_name}: {result['saved']} new, "
-                f"{result['updated']} updated, {result['errors']} errors "
-                f"(deleted {deleted} stale, took {elapsed:.1f}s)"
-            )
+            # ONLY do cleanup when doing a FULL scrape (max_pages is None)
+            # If max_pages is set, we're doing a partial scrape and shouldn't delete stale listings
+            deleted = 0
+            if config.max_pages is None:
+                deleted = repository.delete_stale_listings(source_site=site_name, run_id=run_id)
+                logger.info(
+                    f"{site_name}: {result['saved']} new, "
+                    f"{result['updated']} updated, {result['errors']} errors "
+                    f"(deleted {deleted} stale, took {elapsed:.1f}s)"
+                )
+            else:
+                logger.info(
+                    f"{site_name}: {result['saved']} new, "
+                    f"{result['updated']} updated, {result['errors']} errors "
+                    f"(no deletion - partial scrape, took {elapsed:.1f}s)"
+                )
             return {"site": site_name, **result, "deleted": deleted, "elapsed": elapsed}
         else:
             logger.warning(f"{site_name}: No listings scraped (took {elapsed:.1f}s)")

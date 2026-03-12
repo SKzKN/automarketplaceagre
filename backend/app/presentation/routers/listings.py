@@ -61,6 +61,37 @@ def get_listings(
     return use_case.execute(filters=filters, pagination=pagination)
 
 
+@router.get("/count")
+def get_listings_count(
+    use_case: GetListingsUseCaseDependency,
+    query: Optional[str] = Query(None),
+    make_id: Optional[str] = Query(None),
+    series_id: Optional[str] = Query(None),
+    model_id: Optional[str] = Query(None),
+    min_price: Optional[float] = Query(None),
+    max_price: Optional[float] = Query(None),
+    min_year: Optional[int] = Query(None),
+    max_year: Optional[int] = Query(None),
+    body_type: Optional[str] = Query(None),
+    fuel_type: Optional[str] = Query(None),
+    source_site: Optional[str] = Query(None),
+):
+    filters = ListingFilters(
+        query=query,
+        make_id=make_id,
+        series_id=series_id,
+        model_id=model_id,
+        min_price=min_price,
+        max_price=max_price,
+        min_year=min_year,
+        max_year=max_year,
+        body_type=body_type,
+        fuel_type=fuel_type,
+        source_site=source_site,
+    )
+    return {"count": use_case.count(filters=filters)}
+
+
 @router.get("/stats/overview")
 def get_stats(
     use_case: GetStatisticsUseCaseDependency,
