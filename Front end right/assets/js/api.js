@@ -44,6 +44,10 @@ export async function getModels(make_id, series_id = null) {
     const params = series_id ? { series_id } : {};
     return await apiGet(`/api/listings/filter-options/models/${make_id}`, params);
 }
+export async function getAllModels() {
+    // Returns all models in one request: List[ModelDTO] with id, name, make_id, series_id
+    return await apiGet('/api/listings/filter-options/all-models');
+}
 export async function getFuelTypes() {
     const response = await apiGet('/api/listings/filter-options/fuel-types');
     // Backend returns {"fuel_types": [...]}

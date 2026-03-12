@@ -123,6 +123,13 @@ def get_models(
     return use_case.get_models(make_id, series_id)
 
 
+@router.get("/filter-options/all-models", response_model=List[ModelDTO])
+def get_all_models(
+    use_case: GetFilterOptionsUseCaseDependency,
+):
+    return use_case.get_all_models()
+
+
 @router.get("/filter-options/fuel-types")
 def get_fuel_types(
     use_case: GetFilterOptionsUseCaseDependency,

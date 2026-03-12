@@ -19,6 +19,9 @@ class GetFilterOptionsUseCase:
     def get_models(self, make_id: str, series_id: Optional[str] = None) -> List[ModelDTO]:
         return self._repository.get_models_for_make(make_id, series_id)
     
+    def get_all_models(self) -> List[ModelDTO]:
+        return self._repository.get_all_models()
+
     def get_fuel_types(self) -> List[str]:
         return sorted(self._repository.get_distinct_fuel_types())
     

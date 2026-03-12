@@ -70,7 +70,12 @@ class ICarListingRepository(ABC):
     def get_models_for_make(self, make_id: str, series_id: Optional[str] = None) -> List[ModelDTO]:
         """Get all models for a given make (optionally filtered by series) from taxonomy."""
         pass
-    
+
+    @abstractmethod
+    def get_all_models(self) -> List[ModelDTO]:
+        """Get all models that have actual listings, across all makes, in one query."""
+        pass
+
     @abstractmethod
     def get_distinct_fuel_types(self) -> List[str]:
         """Get list of distinct fuel types."""

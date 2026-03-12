@@ -342,6 +342,28 @@ class MongoCarListingRepository(ICarListingRepository):
             logger.error(f"Error getting models for make: {e}")
             raise QueryError(f"Failed to get models: {e}")
 
+    def get_all_models(self) -> List[ModelDTO]:
+        """Get all models that have actual car listings in a single query."""
+        try:
+            model_ids_with_listings = self.collection.distinct("model_id", {"model_id": {"$ne": None}})
+            if not model_ids_with_listings:
+                return []
+            cursor = self.models_collection.find(
+                {"_id": {"$in": model_ids_with_listings}}
+            ).sort("name_et", 1)
+            return [
+                ModelDTO(
+                    id=str(doc["_id"]),
+                    name=doc.get("name_et", ""),
+                    make_id=str(doc["make_id"]),
+                    series_id=str(doc["series_id"]) if doc.get("series_id") else None,
+                )
+                for doc in cursor
+            ]
+        except Exception as e:
+            logger.error(f"Error getting all models: {e}")
+            raise QueryError(f"Failed to get all models: {e}")
+
     def get_distinct_fuel_types(self) -> List[str]:
         """Get list of distinct fuel types."""
         try:

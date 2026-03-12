@@ -840,7 +840,7 @@
     <script src="assets/js/bootstrap.min.js"></script>
     <script type="module">
         // Import API functions
-        import { getListings, getListingsCount, getMakes, getModels, getFuelTypes, getBodyTypes } from './assets/js/api.js';
+        import { getListings, getListingsCount, getMakes, getAllModels, getFuelTypes, getBodyTypes } from './assets/js/api.js';
         
         // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -1027,25 +1027,22 @@
         // Prefetch ALL filter data at once
         async function prefetchFilterData() {
             try {
-                // Fetch all makes (returns List[MakeDTO] with id, name, is_top)
-                const makesData = await getMakes();
+                // Fetch all makes and all models in a single request each
+                const [makesData, allModelsData] = await Promise.all([
+                    getMakes(),
+                    getAllModels()
+                ]);
                 if (makesData && Array.isArray(makesData)) {
                     filterCache.makes = makesData;
-                    
-                    // Fetch models for ALL makes in parallel (using make.id)
-                    const modelPromises = makesData.map(async (make) => {
-                        try {
-                            const modelsData = await getModels(make.id);
-                            return { makeId: make.id, models: modelsData || [] };
-                        } catch (error) {
-                            console.error(`Error loading models for ${make.name}:`, error);
-                            return { makeId: make.id, models: [] };
+                }
+                if (allModelsData && Array.isArray(allModelsData)) {
+                    // Group models by make_id
+                    allModelsData.forEach(model => {
+                        if (!model || !model.make_id) return;
+                        if (!filterCache.modelsByMake[model.make_id]) {
+                            filterCache.modelsByMake[model.make_id] = [];
                         }
-                    });
-                    
-                    const allModels = await Promise.all(modelPromises);
-                    allModels.forEach(({ makeId, models }) => {
-                        filterCache.modelsByMake[makeId] = models;
+                        filterCache.modelsByMake[model.make_id].push(model);
                     });
                 }
                 
