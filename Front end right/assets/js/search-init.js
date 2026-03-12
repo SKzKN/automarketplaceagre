@@ -1,4 +1,4 @@
-import { getMakes, getAllModels, getFuelTypes, getBodyTypes } from './api.js';
+import { getMakes, getAllModels, getFuelTypes, getBodyTypes, getListingsCount } from './api.js';
 
 window.apibaseurl = 'https://automarketplaceagre.onrender.com';
 
@@ -47,6 +47,19 @@ function initQuickBrandButtons() {
       window.location.href = 'search-results.html?' + params.toString();
     });
   });
+}
+
+async function updateHeroListingsCount() {
+  const countElement = document.getElementById('hero-listings-count');
+  if (!countElement) return;
+
+  try {
+    const totalCount = await getListingsCount();
+    countElement.textContent = totalCount.toLocaleString('et-EE');
+  } catch (error) {
+    console.error('Error loading hero listings count:', error);
+    countElement.textContent = '...';
+  }
 }
 
 // Prefetch ALL filter data at once
@@ -164,7 +177,10 @@ async function populateForm(form) {
 // Populate all search forms on page
 async function initSearchForms() {
   // First, prefetch all filter data
-  await prefetchFilterData();
+  await Promise.all([
+    prefetchFilterData(),
+    updateHeroListingsCount()
+  ]);
   initQuickBrandButtons();
   
   const forms = document.querySelectorAll('.search-form');
