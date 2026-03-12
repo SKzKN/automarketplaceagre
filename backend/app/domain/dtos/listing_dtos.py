@@ -66,6 +66,8 @@ class ListingFilters(BaseModel):
     max_price: Optional[float] = None
     min_year: Optional[int] = None
     max_year: Optional[int] = None
+    min_mileage: Optional[int] = None
+    max_mileage: Optional[int] = None
     # Other filters
     body_type: Optional[str] = None
     fuel_type: Optional[str] = None

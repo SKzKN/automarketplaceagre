@@ -439,6 +439,13 @@ class MongoCarListingRepository(ICarListingRepository):
             if filters.max_year is not None:
                 query["year"]["$lte"] = filters.max_year
 
+        if filters.min_mileage is not None or filters.max_mileage is not None:
+            query["mileage"] = {}
+            if filters.min_mileage is not None:
+                query["mileage"]["$gte"] = filters.min_mileage
+            if filters.max_mileage is not None:
+                query["mileage"]["$lte"] = filters.max_mileage
+
         if filters.body_type:
             query["body_type"] = filters.body_type
 
