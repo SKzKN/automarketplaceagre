@@ -10,8 +10,30 @@ const filterCache = {
     bodyTypes: []
 };
 
+const PRIORITY_BODY_TYPES = [
+  'universaal',
+  'sedaan',
+  'kupee',
+  'luukpära',
+  'mahtuniversaal',
+  'kabriolett',
+  'pikap',
+  'limusiin'
+];
+
 // Helper to populate select options
 const defaultOption = (label = 'Kõik') => `<option value="">${label}</option>`;
+
+function sortBodyTypesForDropdown(bodyTypes = []) {
+  const uniqueBodyTypes = [...new Set(bodyTypes.filter(Boolean).map(b => b.toLowerCase()))];
+
+  const prioritized = PRIORITY_BODY_TYPES.filter(type => uniqueBodyTypes.includes(type));
+  const rest = uniqueBodyTypes
+    .filter(type => !PRIORITY_BODY_TYPES.includes(type))
+    .sort((a, b) => a.localeCompare(b, 'et'));
+
+  return [...prioritized, ...rest];
+}
 
 const normalizeBrandKey = (value = '') => value
   .toString()
@@ -164,11 +186,15 @@ async function populateForm(form) {
   const bodySelect = form.querySelector('select[name="body_type"]');
   if (bodySelect && filterCache.bodyTypes.length) {
     bodySelect.innerHTML = defaultOption('Kõik keretüübid');
-    filterCache.bodyTypes.forEach(body => {
+    const orderedBodyTypes = sortBodyTypesForDropdown(filterCache.bodyTypes);
+    orderedBodyTypes.forEach(body => {
       if (!body) return; // Skip null/empty values
       const opt = document.createElement('option');
       opt.value = body; // Use exact value from API
       opt.textContent = body; // Display as-is
+      if (PRIORITY_BODY_TYPES.includes(body)) {
+        opt.style.fontWeight = '700';
+      }
       bodySelect.appendChild(opt);
     });
   }

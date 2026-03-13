@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 from typing import Dict, List, Optional
 
 from bson import ObjectId
@@ -26,6 +27,17 @@ logger = get_logger(__name__)
 MAKES_COL = "makes"
 SERIES_COL = "series"
 MODELS_COL = "models"
+
+BODY_TYPE_PREFIX_ALIASES = {
+    "universaal": ["universaal"],
+    "sedaan": ["sedaan"],
+    "kupee": ["kupee"],
+    "luukpära": ["luukpära"],
+    "mahtuniversaal": ["mahtuniversaal", "mahtuniuniversaal"],
+    "kabriolett": ["kabriolett"],
+    "pikap": ["pikap"],
+    "limusiin": ["limusiin"],
+}
 
 
 class MongoCarListingRepository(ICarListingRepository):
@@ -380,15 +392,55 @@ class MongoCarListingRepository(ICarListingRepository):
     def get_distinct_body_types(self) -> List[str]:
         """Get list of distinct body types."""
         try:
-            pipeline = [
-                {"$match": {"body_type": {"$nin": [None, ""]}}},
-                {"$group": {"_id": "$body_type"}},
-                {"$sort": {"_id": 1}},
-            ]
-            return [item["_id"] for item in self.collection.aggregate(pipeline)]
+            raw_body_types = self.collection.distinct(
+                "body_type", {"body_type": {"$nin": [None, ""]}}
+            )
+
+            normalized_types = {
+                self._normalize_body_type(str(body_type))
+                for body_type in raw_body_types
+                if body_type
+            }
+
+            return sorted([body_type for body_type in normalized_types if body_type])
         except Exception as e:
             logger.error(f"Error getting distinct body types: {e}")
             raise QueryError(f"Failed to get body types: {e}")
+
+    def _normalize_body_type(self, body_type: str) -> str:
+        """Normalize body type labels for grouped filter options."""
+        cleaned = " ".join(body_type.strip().split())
+        cleaned = re.sub(r"\s*\(.*\)\s*$", "", cleaned)
+        normalized = cleaned.strip().lower()
+
+        for canonical, aliases in BODY_TYPE_PREFIX_ALIASES.items():
+            if any(normalized.startswith(alias) for alias in aliases):
+                return canonical
+
+        return normalized
+
+    def _build_body_type_query(self, normalized_body_type: str) -> Dict:
+        """Build a grouped body type query that matches all variant labels."""
+        aliases = BODY_TYPE_PREFIX_ALIASES.get(
+            normalized_body_type, [normalized_body_type]
+        )
+
+        regex_queries = []
+        for alias in aliases:
+            escaped_alias = re.escape(alias)
+            regex_queries.append(
+                {
+                    "body_type": {
+                        "$regex": f"^{escaped_alias}(?:\\b|\\s*\\()",
+                        "$options": "i",
+                    }
+                }
+            )
+
+        if len(regex_queries) == 1:
+            return regex_queries[0]
+
+        return {"$or": regex_queries}
 
     def _build_query(self, filters: ListingFilters) -> Dict:
         """Build MongoDB query from filters."""
@@ -447,7 +499,12 @@ class MongoCarListingRepository(ICarListingRepository):
                 query["mileage"]["$lte"] = filters.max_mileage
 
         if filters.body_type:
-            query["body_type"] = filters.body_type
+            normalized_body_type = self._normalize_body_type(filters.body_type)
+            body_type_query = self._build_body_type_query(normalized_body_type)
+            if "$or" in body_type_query:
+                query.setdefault("$and", []).append(body_type_query)
+            else:
+                query.update(body_type_query)
 
         if filters.fuel_type:
             query["fuel_type"] = filters.fuel_type

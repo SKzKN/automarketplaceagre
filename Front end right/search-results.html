@@ -852,6 +852,28 @@
             fuelTypes: [],
             bodyTypes: []
         };
+
+        const PRIORITY_BODY_TYPES = [
+            'universaal',
+            'sedaan',
+            'kupee',
+            'luukpära',
+            'mahtuniversaal',
+            'kabriolett',
+            'pikap',
+            'limusiin'
+        ];
+
+        function sortBodyTypesForDropdown(bodyTypes = []) {
+            const uniqueBodyTypes = [...new Set(bodyTypes.filter(Boolean).map(b => b.toLowerCase()))];
+
+            const prioritized = PRIORITY_BODY_TYPES.filter(type => uniqueBodyTypes.includes(type));
+            const rest = uniqueBodyTypes
+                .filter(type => !PRIORITY_BODY_TYPES.includes(type))
+                .sort((a, b) => a.localeCompare(b, 'et'));
+
+            return [...prioritized, ...rest];
+        }
         
         // Store current listings globally for sorting
         let currentListings = [];
@@ -1104,7 +1126,8 @@
                 if (bodySelect && filterCache.bodyTypes.length) {
                     const currentBody = urlParams.get('body_type') || '';
                     bodySelect.innerHTML = '<option value="">Kõik</option>';
-                    filterCache.bodyTypes.forEach(body => {
+                    const orderedBodyTypes = sortBodyTypesForDropdown(filterCache.bodyTypes);
+                    orderedBodyTypes.forEach(body => {
                         if (!body) return; // Skip null/empty values
                         const option = document.createElement('option');
                         option.value = body; // Use exact value from API
@@ -1113,6 +1136,9 @@
                             word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
                         ).join(' ');
                         option.textContent = displayText;
+                        if (PRIORITY_BODY_TYPES.includes(body)) {
+                            option.style.fontWeight = '700';
+                        }
                         if (body === currentBody) option.selected = true;
                         bodySelect.appendChild(option);
                     });
