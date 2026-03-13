@@ -35,6 +35,54 @@ function sortBodyTypesForDropdown(bodyTypes = []) {
   return [...prioritized, ...rest];
 }
 
+function enableTypeSearchForSelect(selectElement) {
+  if (!selectElement || selectElement.dataset.typeSearchEnabled === 'true') return;
+
+  let searchBuffer = '';
+  let resetTimer = null;
+
+  const handleKeydown = (event) => {
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+
+    const isCharacter = event.key && event.key.length === 1;
+    const isBackspace = event.key === 'Backspace';
+    if (!isCharacter && !isBackspace) return;
+
+    if (isBackspace) {
+      searchBuffer = searchBuffer.slice(0, -1);
+    } else {
+      searchBuffer += event.key.toLowerCase();
+    }
+
+    if (resetTimer) clearTimeout(resetTimer);
+    resetTimer = setTimeout(() => {
+      searchBuffer = '';
+    }, 800);
+
+    if (!searchBuffer) return;
+
+    const options = Array.from(selectElement.options).filter(option => option.value !== '');
+    const match = options.find(option => option.textContent.toLowerCase().includes(searchBuffer));
+    if (match && selectElement.value !== match.value) {
+      selectElement.value = match.value;
+      selectElement.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    event.preventDefault();
+  };
+
+  selectElement.addEventListener('keydown', handleKeydown);
+  selectElement.dataset.typeSearchEnabled = 'true';
+
+  setTimeout(() => {
+    const wrapper = selectElement.nextElementSibling;
+    if (wrapper && wrapper.classList.contains('nice-select') && wrapper.dataset.typeSearchEnabled !== 'true') {
+      wrapper.addEventListener('keydown', handleKeydown);
+      wrapper.dataset.typeSearchEnabled = 'true';
+    }
+  }, 0);
+}
+
 const normalizeBrandKey = (value = '') => value
   .toString()
   .trim()
@@ -146,6 +194,7 @@ async function populateForm(form) {
         makeSelect.appendChild(opt);
       });
     }
+    enableTypeSearchForSelect(makeSelect);
     
     // Set up model dropdown
     const modelSelect = form.querySelector('select[name="model"]');
@@ -165,7 +214,10 @@ async function populateForm(form) {
             modelSelect.appendChild(opt);
           });
         }
+        enableTypeSearchForSelect(modelSelect);
       });
+
+      enableTypeSearchForSelect(modelSelect);
     }
   }
   
