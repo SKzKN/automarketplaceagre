@@ -114,10 +114,6 @@
             background: #fff;
         }
 
-        .type-search-input {
-            margin-bottom: 8px;
-        }
-        
         .filter-group select:focus,
         .filter-group input:focus {
             border-color: #2980b9;
@@ -681,7 +677,6 @@
             <form>
                 <div class="filter-group">
                     <label>Mark</label>
-                    <input type="text" id="make-search-input" class="type-search-input" placeholder="Kirjuta margi nimi...">
                     <select name="make">
                         <option value="">Kõik margid</option>
                     </select>
@@ -689,7 +684,6 @@
                 
                 <div class="filter-group">
                     <label>Mudel</label>
-                    <input type="text" id="model-search-input" class="type-search-input" placeholder="Kirjuta mudeli nimi...">
                     <select name="model">
                         <option value="">Kõik mudelid</option>
                     </select>
@@ -929,39 +923,6 @@
             }, 0);
         }
 
-        function bindSearchInputToSelect(inputElement, selectElement) {
-            if (!inputElement || !selectElement || inputElement.dataset.boundToSelect === 'true') return;
-
-            const syncInputFromSelect = () => {
-                const selectedOption = selectElement.options[selectElement.selectedIndex];
-                if (!selectedOption || !selectedOption.value) {
-                    inputElement.value = '';
-                    return;
-                }
-                inputElement.value = (selectedOption.textContent || '').trim();
-            };
-
-            const selectMatchFromInput = () => {
-                const searchTerm = (inputElement.value || '').trim().toLowerCase();
-                if (!searchTerm) return;
-
-                const options = Array.from(selectElement.options).filter(option => option.value !== '');
-                const startsWithMatch = options.find(option => option.textContent.toLowerCase().startsWith(searchTerm));
-                const includesMatch = startsWithMatch || options.find(option => option.textContent.toLowerCase().includes(searchTerm));
-
-                if (includesMatch && selectElement.value !== includesMatch.value) {
-                    selectElement.value = includesMatch.value;
-                    selectElement.dispatchEvent(new Event('change', { bubbles: true }));
-                }
-            };
-
-            inputElement.addEventListener('input', selectMatchFromInput);
-            inputElement.addEventListener('blur', syncInputFromSelect);
-            selectElement.addEventListener('change', syncInputFromSelect);
-
-            inputElement.dataset.boundToSelect = 'true';
-        }
-        
         // Store current listings globally for sorting
         let currentListings = [];
         let currentTotalCount = 0;
@@ -1190,9 +1151,6 @@
                         makeSelect.appendChild(option);
                     });
                     enableTypeSearchForSelect(makeSelect);
-
-                    const makeSearchInput = document.getElementById('make-search-input');
-                    bindSearchInputToSelect(makeSearchInput, makeSelect);
                 }
                 
                 // Populate fuel types from cache
@@ -1252,12 +1210,6 @@
                             });
                         }
                         enableTypeSearchForSelect(modelSelect);
-
-                        const modelSearchInput = document.getElementById('model-search-input');
-                        if (modelSearchInput && !selectedModel) {
-                            modelSearchInput.value = '';
-                        }
-                        bindSearchInputToSelect(modelSearchInput, modelSelect);
                     }
                 }
                 

@@ -4,6 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>otsiauto.ee - Auto Otsinguportaal</title>
+  <link rel="canonical" href="https://otsiauto.ee/">
+  <script>
+    (function () {
+      if (window.location.pathname.endsWith('/index.html')) {
+        const cleanPath = window.location.pathname.slice(0, -'/index.html'.length) || '/';
+        window.history.replaceState({}, '', cleanPath + window.location.search + window.location.hash);
+      }
+    })();
+  </script>
   <link rel="icon" href="assets/img/favicon.png">
   <!-- CSS only -->
    <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css"> 
