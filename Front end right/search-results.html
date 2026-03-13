@@ -1236,6 +1236,16 @@
         // Populate filters from URL parameters
         function populateFilters() {
             try {
+                const getSelectedLabel = (selector) => {
+                    const select = document.querySelector(selector);
+                    if (!select) return '';
+                    const selectedOption = select.options[select.selectedIndex];
+                    if (!selectedOption) return '';
+                    const value = (selectedOption.value || '').trim();
+                    const label = (selectedOption.textContent || '').trim();
+                    return value ? label : '';
+                };
+
                 // Vehicle type
                 const vehicleType = urlParams.get('vehicle_type');
                 const resultsTitle = document.querySelector('.results-title h2');
@@ -1266,7 +1276,8 @@
                         }
                     }
                     if (resultsTitle) {
-                        resultsTitle.textContent = 'Tulemused: ' + make.charAt(0).toUpperCase() + make.slice(1);
+                        const makeLabel = getSelectedLabel('select[name="make"]');
+                        resultsTitle.textContent = 'Tulemused: ' + (makeLabel || (make.charAt(0).toUpperCase() + make.slice(1)));
                     }
                 }
                 
@@ -1292,8 +1303,15 @@
                         }
                     }
                     if (resultsTitle) {
-                        const makeName = make ? make.charAt(0).toUpperCase() + make.slice(1) + ' ' : '';
-                        resultsTitle.textContent = 'Tulemused: ' + makeName + model.charAt(0).toUpperCase() + model.slice(1);
+                        const makeLabel = getSelectedLabel('select[name="make"]');
+                        const modelLabel = getSelectedLabel('select[name="model"]');
+                        const titleParts = [makeLabel, modelLabel].filter(Boolean).join(' ').trim();
+                        if (titleParts) {
+                            resultsTitle.textContent = 'Tulemused: ' + titleParts;
+                        } else {
+                            const makeName = make ? make.charAt(0).toUpperCase() + make.slice(1) + ' ' : '';
+                            resultsTitle.textContent = 'Tulemused: ' + makeName + model.charAt(0).toUpperCase() + model.slice(1);
+                        }
                     }
                 }
                 
