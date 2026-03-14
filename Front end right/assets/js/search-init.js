@@ -1,10 +1,11 @@
-import { getMakes, getAllModels, getFuelTypes, getBodyTypes, getListingsCount } from './api.js';
+import { getMakes, getAllModels, getSeries, getFuelTypes, getBodyTypes, getListingsCount } from './api.js';
 
 window.apibaseurl = 'https://automarketplaceagre.onrender.com';
 
 // Cache for all filter data (prefetched)
 const filterCache = {
     makes: [],
+  seriesByMake: {},
     modelsByMake: {},
     fuelTypes: [],
     bodyTypes: []
@@ -177,6 +178,76 @@ async function prefetchFilterData() {
 }
 
 async function populateForm(form) {
+  async function ensureSeriesForMake(makeId) {
+    if (!makeId) return [];
+    if (!filterCache.seriesByMake[makeId]) {
+      try {
+        const seriesData = await getSeries(makeId);
+        filterCache.seriesByMake[makeId] = Array.isArray(seriesData) ? seriesData : [];
+      } catch (error) {
+        console.error('Error loading series for make:', error);
+        filterCache.seriesByMake[makeId] = [];
+      }
+    }
+    return filterCache.seriesByMake[makeId];
+  }
+
+  async function updateModelDropdown(modelSelect, makeId) {
+    modelSelect.innerHTML = defaultOption('Kõik mudelid');
+    if (!makeId) {
+      enableTypeSearchForSelect(modelSelect);
+      return;
+    }
+
+    const [seriesList, allModelsForMake] = await Promise.all([
+      ensureSeriesForMake(makeId),
+      Promise.resolve(filterCache.modelsByMake[makeId] || [])
+    ]);
+
+    const seriesMap = {};
+    seriesList.forEach(series => {
+      if (series?.id) seriesMap[series.id] = series.name || '';
+    });
+
+    const orderedSeries = [...seriesList].sort((a, b) =>
+      (a.name || '').localeCompare(b.name || '', 'et')
+    );
+
+    orderedSeries.forEach(series => {
+      if (!series?.id) return;
+
+      const seriesOption = document.createElement('option');
+      seriesOption.value = `series:${series.id}`;
+      seriesOption.textContent = `${series.name} (kõik)`;
+      modelSelect.appendChild(seriesOption);
+
+      const modelsInSeries = allModelsForMake
+        .filter(model => model?.series_id === series.id)
+        .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'et'));
+
+      modelsInSeries.forEach(model => {
+        if (!model?.id) return;
+        const modelOption = document.createElement('option');
+        modelOption.value = model.id;
+        modelOption.textContent = model.name;
+        modelSelect.appendChild(modelOption);
+      });
+    });
+
+    const modelsWithoutSeries = allModelsForMake
+      .filter(model => model && model.id && !model.series_id)
+      .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'et'));
+
+    modelsWithoutSeries.forEach(model => {
+      const modelOption = document.createElement('option');
+      modelOption.value = model.id;
+      modelOption.textContent = model.name;
+      modelSelect.appendChild(modelOption);
+    });
+
+    enableTypeSearchForSelect(modelSelect);
+  }
+
   // Populate makes from cache - makes are now objects with {id, name, is_top}
   const makeSelect = form.querySelector('select[name="make"]');
   if (makeSelect) {
@@ -201,20 +272,10 @@ async function populateForm(form) {
     if (modelSelect) {
       modelSelect.innerHTML = defaultOption('Kõik mudelid');
       
-      // Update models when make changes (from cache)
-      makeSelect.addEventListener('change', () => {
-        modelSelect.innerHTML = defaultOption('Kõik mudelid');
+      // Update models when make changes (from cache + series)
+      makeSelect.addEventListener('change', async () => {
         const selectedMakeId = makeSelect.value;
-        if (selectedMakeId && filterCache.modelsByMake[selectedMakeId]) {
-          filterCache.modelsByMake[selectedMakeId].forEach(model => {
-            if (!model || !model.id) return; // Skip invalid values
-            const opt = document.createElement('option');
-            opt.value = model.id; // Use model ID as value
-            opt.textContent = model.name; // Display model name
-            modelSelect.appendChild(opt);
-          });
-        }
-        enableTypeSearchForSelect(modelSelect);
+        await updateModelDropdown(modelSelect, selectedMakeId);
       });
 
       enableTypeSearchForSelect(modelSelect);
@@ -268,7 +329,14 @@ async function initSearchForms() {
       e.preventDefault();
       const params = new URLSearchParams();
       for (const el of form.elements) {
-        if (el.name && el.value !== '') params.append(el.name, el.value);
+        if (!el.name || el.value === '') continue;
+
+        if (el.name === 'model' && typeof el.value === 'string' && el.value.startsWith('series:')) {
+          params.append('series', el.value.slice('series:'.length));
+          continue;
+        }
+
+        params.append(el.name, el.value);
       }
       window.location.href = 'search-results.html?' + params.toString();
     });

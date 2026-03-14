@@ -844,7 +844,7 @@
     <script src="assets/js/bootstrap.min.js"></script>
     <script type="module">
         // Import API functions
-        import { getListings, getListingsCount, getMakes, getAllModels, getFuelTypes, getBodyTypes } from './assets/js/api.js';
+        import { getListings, getListingsCount, getMakes, getSeries, getAllModels, getFuelTypes, getBodyTypes } from './assets/js/api.js';
         
         // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -852,6 +852,7 @@
         // Cache for all filter data (prefetched)
         const filterCache = {
             makes: [],
+            seriesByMake: {},
             modelsByMake: {},
             fuelTypes: [],
             bodyTypes: []
@@ -1138,6 +1139,7 @@
                 // Build filter object from URL params (using new backend parameter names)
                 const filters = {};
                 if (urlParams.get('make')) filters.make_id = urlParams.get('make');
+                if (urlParams.get('series')) filters.series_id = urlParams.get('series');
                 if (urlParams.get('model')) filters.model_id = urlParams.get('model');
                 if (urlParams.get('min_year')) filters.min_year = parseInt(urlParams.get('min_year'));
                 if (urlParams.get('max_year')) filters.max_year = parseInt(urlParams.get('max_year'));
@@ -1271,21 +1273,70 @@
                 }
                 
                 // Function to update model dropdown based on selected make
-                function updateModelDropdown(makeId, selectedModel = '') {
+                async function ensureSeriesForMake(makeId) {
+                    if (!makeId) return [];
+                    if (!filterCache.seriesByMake[makeId]) {
+                        try {
+                            const seriesData = await getSeries(makeId);
+                            filterCache.seriesByMake[makeId] = Array.isArray(seriesData) ? seriesData : [];
+                        } catch (error) {
+                            console.error('Error loading series for make:', error);
+                            filterCache.seriesByMake[makeId] = [];
+                        }
+                    }
+                    return filterCache.seriesByMake[makeId];
+                }
+
+                async function updateModelDropdown(makeId, selectedModel = '', selectedSeries = '') {
                     const modelSelect = document.querySelector('select[name="model"]');
                     if (modelSelect) {
                         modelSelect.innerHTML = '<option value="">Kõik mudelid</option>';
-                        if (makeId && filterCache.modelsByMake[makeId]) {
-                            // ModelDTO: {id, name, make_id, series_id}
-                            filterCache.modelsByMake[makeId].forEach(model => {
-                                if (!model || !model.id) return; // Skip invalid values
+
+                        if (makeId) {
+                            const [seriesList, allModelsForMake] = await Promise.all([
+                                ensureSeriesForMake(makeId),
+                                Promise.resolve(filterCache.modelsByMake[makeId] || [])
+                            ]);
+
+                            const orderedSeries = [...seriesList].sort((a, b) =>
+                                (a.name || '').localeCompare(b.name || '', 'et')
+                            );
+
+                            orderedSeries.forEach(series => {
+                                if (!series || !series.id) return;
+
+                                const seriesOption = document.createElement('option');
+                                seriesOption.value = `series:${series.id}`;
+                                seriesOption.textContent = `${series.name} (kõik)`;
+                                if (series.id === selectedSeries) seriesOption.selected = true;
+                                modelSelect.appendChild(seriesOption);
+
+                                const modelsInSeries = allModelsForMake
+                                    .filter(model => model && model.id && model.series_id === series.id)
+                                    .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'et'));
+
+                                modelsInSeries.forEach(model => {
+                                    const option = document.createElement('option');
+                                    option.value = model.id;
+                                    option.textContent = model.name;
+                                    if (model.id === selectedModel) option.selected = true;
+                                    modelSelect.appendChild(option);
+                                });
+                            });
+
+                            const modelsWithoutSeries = allModelsForMake
+                                .filter(model => model && model.id && !model.series_id)
+                                .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'et'));
+
+                            modelsWithoutSeries.forEach(model => {
                                 const option = document.createElement('option');
-                                option.value = model.id; // Use model ID for value
-                                option.textContent = model.name; // Display model name
+                                option.value = model.id;
+                                option.textContent = model.name;
                                 if (model.id === selectedModel) option.selected = true;
                                 modelSelect.appendChild(option);
                             });
                         }
+
                         enableTypeSearchForSelect(modelSelect);
                     }
                 }
@@ -1293,16 +1344,17 @@
                 // Set up make change handler to populate models from cache
                 const makeSelectElement = document.querySelector('select[name="make"]');
                 if (makeSelectElement) {
-                    makeSelectElement.addEventListener('change', (e) => {
+                    makeSelectElement.addEventListener('change', async (e) => {
                         const make = e.target.value;
-                        updateModelDropdown(make);
+                        await updateModelDropdown(make);
                     });
                     
                     // Populate models for currently selected make on load
                     const initialMake = urlParams.get('make') || makeSelectElement.value;
                     const currentModel = urlParams.get('model') || '';
+                    const currentSeries = urlParams.get('series') || '';
                     if (initialMake) {
-                        updateModelDropdown(initialMake, currentModel);
+                        await updateModelDropdown(initialMake, currentModel, currentSeries);
                     }
                 }
             } catch (error) {
@@ -1360,6 +1412,7 @@
                 
                 // Model
                 const model = urlParams.get('model');
+                const series = urlParams.get('series');
                 if (model && model !== '') {
                     const modelSelect = document.querySelector('select[name="model"]');
                     if (modelSelect) {
@@ -1388,6 +1441,19 @@
                         } else {
                             const makeName = make ? make.charAt(0).toUpperCase() + make.slice(1) + ' ' : '';
                             resultsTitle.textContent = 'Tulemused: ' + makeName + model.charAt(0).toUpperCase() + model.slice(1);
+                        }
+                    }
+                }
+
+                if (series && series !== '') {
+                    const modelSelect = document.querySelector('select[name="model"]');
+                    if (modelSelect) {
+                        const seriesValue = `series:${series}`;
+                        for (let i = 0; i < modelSelect.options.length; i++) {
+                            if (modelSelect.options[i].value === seriesValue) {
+                                modelSelect.selectedIndex = i;
+                                break;
+                            }
                         }
                     }
                 }
@@ -1529,7 +1595,14 @@
                 const params = new URLSearchParams();
                 
                 for (const [key, value] of formData.entries()) {
-                    if (value) params.append(key, value);
+                    if (!value) continue;
+
+                    if (key === 'model' && typeof value === 'string' && value.startsWith('series:')) {
+                        params.append('series', value.slice('series:'.length));
+                        continue;
+                    }
+
+                    params.append(key, value);
                 }
                 
                 // Redirect to search-results.html with new filters
