@@ -797,8 +797,8 @@
             <div class="source-tabs">
                 <button class="source-tab active">Kõik <span class="count">0</span></button>
                 <button class="source-tab">Auto24 <span class="count">0</span></button>
-                <button class="source-tab">Mobile.de <span class="count">0</span></button>
-                <button class="source-tab">Autoscout24 <span class="count">0</span></button>
+                <button class="source-tab">Autodiiler <span class="count">0</span></button>
+                <button class="source-tab">Veego <span class="count">0</span></button>
             </div>
             
             <!-- Car Cards will be dynamically loaded here -->
@@ -928,8 +928,77 @@
         }
 
         // Store current listings globally for sorting
+        let allListings = [];
         let currentListings = [];
         let currentTotalCount = 0;
+        let activeSourceFilter = 'all';
+
+        const SOURCE_DISPLAY_NAMES = {
+            auto24: 'Auto24',
+            autodiiler: 'Autodiiler',
+            veego: 'Veego'
+        };
+
+        const SOURCE_ORDER = ['auto24', 'autodiiler', 'veego'];
+
+        function normalizeSourceKey(sourceSite) {
+            return (sourceSite || '').toString().trim().toLowerCase();
+        }
+
+        function getSourceDisplayName(sourceKey) {
+            if (!sourceKey) return 'Tundmatu';
+            if (SOURCE_DISPLAY_NAMES[sourceKey]) return SOURCE_DISPLAY_NAMES[sourceKey];
+            return sourceKey.charAt(0).toUpperCase() + sourceKey.slice(1);
+        }
+
+        function updateSourceTabs(listings) {
+            const tabsContainer = document.querySelector('.source-tabs');
+            if (!tabsContainer) return;
+
+            const sourceCounts = {};
+            (listings || []).forEach(listing => {
+                const key = normalizeSourceKey(listing?.source_site);
+                if (!key) return;
+                sourceCounts[key] = (sourceCounts[key] || 0) + 1;
+            });
+
+            const dynamicSources = Object.keys(sourceCounts)
+                .filter(source => !SOURCE_ORDER.includes(source))
+                .sort((a, b) => a.localeCompare(b, 'et'));
+
+            const orderedSources = [...SOURCE_ORDER, ...dynamicSources]
+                .filter(source => sourceCounts[source] !== undefined);
+
+            const buttonsHtml = [
+                `<button class="source-tab ${activeSourceFilter === 'all' ? 'active' : ''}" data-source="all">Kõik <span class="count">${(listings || []).length}</span></button>`,
+                ...orderedSources.map(source => {
+                    const isActive = activeSourceFilter === source;
+                    const label = getSourceDisplayName(source);
+                    const count = sourceCounts[source] || 0;
+                    return `<button class="source-tab ${isActive ? 'active' : ''}" data-source="${source}">${label} <span class="count">${count}</span></button>`;
+                })
+            ];
+
+            tabsContainer.innerHTML = buttonsHtml.join('');
+
+            tabsContainer.querySelectorAll('.source-tab').forEach(tab => {
+                tab.addEventListener('click', function () {
+                    const selectedSource = this.getAttribute('data-source') || 'all';
+                    activeSourceFilter = selectedSource;
+                    applySourceFilterAndRender();
+                });
+            });
+        }
+
+        function applySourceFilterAndRender() {
+            const filteredListings = activeSourceFilter === 'all'
+                ? [...allListings]
+                : allListings.filter(listing => normalizeSourceKey(listing?.source_site) === activeSourceFilter);
+
+            currentListings = filteredListings;
+            renderListings(filteredListings, currentTotalCount);
+            updateSourceTabs(allListings);
+        }
         
         // Get source logo based on source site
         function getSourceLogo(sourceSite) {
@@ -955,8 +1024,10 @@
             
             // Keep the results header, remove everything else
             const resultsHeader = main.querySelector('.results-header');
+            const sourceTabs = main.querySelector('.source-tabs');
             main.innerHTML = '';
             if (resultsHeader) main.appendChild(resultsHeader);
+            if (sourceTabs) main.appendChild(sourceTabs);
             
             if (!Array.isArray(listings) || !listings.length) {
                 main.insertAdjacentHTML('beforeend', '<p style="padding: 20px; text-align: center; color: #666;">Ühtegi autot ei leitud.</p>');
@@ -1083,9 +1154,11 @@
                     getListings({ ...filters, limit: 100 }),
                     getListingsCount(filters)
                 ]);
-                currentListings = listings;
+                allListings = Array.isArray(listings) ? listings : [];
+                currentListings = allListings;
                 currentTotalCount = totalCount || listings.length;
-                renderListings(listings, currentTotalCount);
+                activeSourceFilter = 'all';
+                applySourceFilterAndRender();
             } catch (error) {
                 console.error('Error fetching listings:', error);
                 const main = document.querySelector('.results-main');
@@ -1413,14 +1486,6 @@
             };
             return types[type] || 'Sõidukid';
         }
-        
-        // Tab switching
-        document.querySelectorAll('.source-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.source-tab').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
         
         // Initialize when DOM is ready
         if (document.readyState === 'loading') {
