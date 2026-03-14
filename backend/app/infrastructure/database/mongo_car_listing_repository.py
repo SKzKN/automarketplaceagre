@@ -607,6 +607,18 @@ class MongoCarListingRepository(ICarListingRepository):
         if filters.fuel_type:
             query["fuel_type"] = filters.fuel_type
 
+        if filters.transmission:
+            transmission_value = filters.transmission.strip().lower()
+            if transmission_value in {"manual", "manuaal"}:
+                query["transmission"] = {"$regex": "^manuaal", "$options": "i"}
+            elif transmission_value in {"automatic", "automaat"}:
+                query["transmission"] = {"$regex": "^automaat", "$options": "i"}
+            else:
+                query["transmission"] = {"$regex": f"^{re.escape(filters.transmission.strip())}", "$options": "i"}
+
+        if filters.drive_type:
+            query["drive_type"] = filters.drive_type
+
         if filters.source_site:
             query["source_site"] = filters.source_site
 

@@ -41,6 +41,8 @@ def get_listings(
     max_mileage: Optional[int] = Query(None),
     body_type: Optional[str] = Query(None),
     fuel_type: Optional[str] = Query(None),
+    transmission: Optional[str] = Query(None),
+    drive_type: Optional[str] = Query(None),
     source_site: Optional[str] = Query(None),
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
@@ -58,6 +60,8 @@ def get_listings(
         max_mileage=max_mileage,
         body_type=body_type,
         fuel_type=fuel_type,
+        transmission=transmission,
+        drive_type=drive_type,
         source_site=source_site,
     )
     pagination = PaginationParams(limit=limit, offset=offset)
@@ -80,6 +84,8 @@ def get_listings_count(
     max_mileage: Optional[int] = Query(None),
     body_type: Optional[str] = Query(None),
     fuel_type: Optional[str] = Query(None),
+    transmission: Optional[str] = Query(None),
+    drive_type: Optional[str] = Query(None),
     source_site: Optional[str] = Query(None),
 ):
     filters = ListingFilters(
@@ -95,6 +101,8 @@ def get_listings_count(
         max_mileage=max_mileage,
         body_type=body_type,
         fuel_type=fuel_type,
+        transmission=transmission,
+        drive_type=drive_type,
         source_site=source_site,
     )
     return {"count": use_case.count(filters=filters)}

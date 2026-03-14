@@ -71,6 +71,8 @@ class ListingFilters(BaseModel):
     # Other filters
     body_type: Optional[str] = None
     fuel_type: Optional[str] = None
+    transmission: Optional[str] = None
+    drive_type: Optional[str] = None
     source_site: Optional[str] = None
 
 
