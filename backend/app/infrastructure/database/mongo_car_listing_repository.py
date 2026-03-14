@@ -445,18 +445,23 @@ class MongoCarListingRepository(ICarListingRepository):
     def _build_query(self, filters: ListingFilters) -> Dict:
         """Build MongoDB query from filters."""
         query: Dict = {}
+        and_conditions: List[Dict] = []
 
         # Filter out listings with no source_site
         query["source_site"] = {"$ne": None}
 
         # Text search
         if filters.query:
-            query["$or"] = [
-                {"title": {"$regex": filters.query, "$options": "i"}},
-                {"make": {"$regex": filters.query, "$options": "i"}},
-                {"model": {"$regex": filters.query, "$options": "i"}},
-                {"description": {"$regex": filters.query, "$options": "i"}},
-            ]
+            and_conditions.append(
+                {
+                    "$or": [
+                        {"title": {"$regex": filters.query, "$options": "i"}},
+                        {"make": {"$regex": filters.query, "$options": "i"}},
+                        {"model": {"$regex": filters.query, "$options": "i"}},
+                        {"description": {"$regex": filters.query, "$options": "i"}},
+                    ]
+                }
+            )
 
         # Canonical ID-based filters (hierarchical)
         if filters.make_id:
@@ -473,7 +478,100 @@ class MongoCarListingRepository(ICarListingRepository):
 
         if filters.model_id:
             try:
-                query["model_id"] = ObjectId(filters.model_id)
+                model_oid = ObjectId(filters.model_id)
+
+                model_name = None
+                series_name = None
+                try:
+                    model_doc = self.models_collection.find_one(
+                        {"_id": model_oid}, {"name_et": 1, "series_id": 1}
+                    )
+                    if model_doc:
+                        model_name = (model_doc.get("name_et") or "").strip()
+
+                        model_series_id = model_doc.get("series_id")
+                        if model_series_id:
+                            series_doc = self.series_collection.find_one(
+                                {"_id": model_series_id}, {"name_et": 1}
+                            )
+                            if series_doc:
+                                series_name = (series_doc.get("name_et") or "").strip()
+                except Exception as e:
+                    logger.warning(f"Failed to resolve model name for fallback: {e}")
+
+                if model_name or series_name:
+                    fallback_clauses: List[Dict] = []
+
+                    if model_name:
+                        escaped_model_name = re.escape(model_name)
+                        fallback_clauses.append(
+                            {
+                                "$and": [
+                                    {
+                                        "model": {
+                                            "$regex": f"^{escaped_model_name}$",
+                                            "$options": "i",
+                                        }
+                                    },
+                                    {
+                                        "$or": [
+                                            {"model_id": None},
+                                            {"model_id": {"$exists": False}},
+                                        ]
+                                    },
+                                ]
+                            }
+                        )
+                        fallback_clauses.append(
+                            {
+                                "$and": [
+                                    {
+                                        "series": {
+                                            "$regex": f"^{escaped_model_name}$",
+                                            "$options": "i",
+                                        }
+                                    },
+                                    {
+                                        "$or": [
+                                            {"model_id": None},
+                                            {"model_id": {"$exists": False}},
+                                        ]
+                                    },
+                                ]
+                            }
+                        )
+
+                    if series_name:
+                        escaped_series_name = re.escape(series_name)
+                        fallback_clauses.append(
+                            {
+                                "$and": [
+                                    {
+                                        "series": {
+                                            "$regex": f"^{escaped_series_name}$",
+                                            "$options": "i",
+                                        }
+                                    },
+                                    {
+                                        "$or": [
+                                            {"model_id": None},
+                                            {"model_id": {"$exists": False}},
+                                        ]
+                                    },
+                                ]
+                            }
+                        )
+
+                    and_conditions.append(
+                        {
+                            "$or": [
+                                {"model_id": model_oid},
+                                *fallback_clauses,
+                            ]
+                        }
+                    )
+                else:
+                    query["model_id"] = model_oid
             except (InvalidId, TypeError):
                 pass
 
@@ -502,7 +600,7 @@ class MongoCarListingRepository(ICarListingRepository):
             normalized_body_type = self._normalize_body_type(filters.body_type)
             body_type_query = self._build_body_type_query(normalized_body_type)
             if "$or" in body_type_query:
-                query.setdefault("$and", []).append(body_type_query)
+                and_conditions.append(body_type_query)
             else:
                 query.update(body_type_query)
 
@@ -511,6 +609,9 @@ class MongoCarListingRepository(ICarListingRepository):
 
         if filters.source_site:
             query["source_site"] = filters.source_site
+
+        if and_conditions:
+            query.setdefault("$and", []).extend(and_conditions)
 
         return query
 
